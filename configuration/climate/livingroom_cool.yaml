@@ -1,0 +1,12 @@
+  platform: generic_thermostat
+  name: Livingroom Cool
+  heater: input_boolean.livingroom_cooling
+  target_sensor: sensor.temperature_158d0001f534fc
+  target_temp: 76
+  ac_mode: true
+  min_temp: 70
+  max_temp: 80    
+  cold_tolerance: 1.0
+  hot_tolerance: 0
+  min_cycle_duration:
+    minutes: 10

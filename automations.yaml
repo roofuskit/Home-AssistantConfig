@@ -1,0 +1,1072 @@
+#Bathroom Humidity Control
+  - alias: Bathroom Humidity Control
+    trigger:
+      #- platform: template
+        #value_template: "{{ states.sensor.humidity_158d00023761ee.state | float >= 70 }}"
+       - platform: state
+         entity_id: binary_sensor.showering
+         to: 'on'
+    action:
+      - service: homeassistant.turn_on
+        entity_id: fan.bathroom_fan
+        
+  - alias: "Bathroom Fan Timer"
+    trigger:
+      platform: state
+      entity_id: fan.bathroom_fan
+      from: 'off'
+      to: 'on'
+      for: 
+        minutes: 10
+    action:
+      - service: homeassistant.turn_off
+        entity_id: fan.bathroom_fan
+        
+        
+#Kitchen Fan
+  - id: kitchen_fan_automation
+    alias: 'Kitchen Fan Automation'
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_presence
+        to: 'on'
+      - platform: template
+        value_template: '{{ states.sensor.temperature_158d0001f5621e.state | float >= states.climate.kitchen_cool.attributes.temperature | float -4 }}'
+      - platform: template
+        value_template: '{{ states.sensor.temperature_158d0001f5621e.state | float >= states.climate.kitchen_cool.attributes.temperature | float -2 }}'
+    condition:
+      - condition: state
+        entity_id: binary_sensor.kitchen_presence
+        state: 'on'
+    action:
+      # Fan speed depends on temperature
+      service: fan.set_speed
+      entity_id: fan.kitchen_fan
+      data_template:
+        speed: >
+            {% if states.sensor.temperature_158d0001f5621e.state | float >= states.climate.kitchen_cool.attributes.temperature | float -2 %}
+              high
+            {% elif states.sensor.temperature_158d0001f5621e.state | float >= states.climate.kitchen_cool.attributes.temperature | float -4 %}
+              medium
+            {% else %}
+              off
+            {% endif %}
+
+#Kitchen Unoccupied
+  - alias: Turn off the kitchen
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_presence
+        to: 'off'
+    action: 
+      - service: homeassistant.turn_off
+        entity_id: fan.kitchen_fan, light.kitchen_overhead
+
+#STARTUP
+  - alias: Startup
+    trigger:
+      - platform: event
+        event_type: homeassistant_start
+    action:
+      - delay: 00:00:30
+      - service: homeassistant.update_entity
+        entity_id: sensor.status_thermostat_count
+      - service: mqtt.publish
+        data:
+          topic: "monitor/scan/restart"
+#THERMOSTAT COUNT
+  - alias: Thermostat Count
+    trigger:
+      - platform: state
+        entity_id: climate.bedroom_cool, climate.kiddos_room_cool, climate.kitchen_cool, climate.livingroom_cool, climate.thermostat_cooling_1
+    action:
+      - service: homeassistant.update_entity
+        entity_id: sensor.status_thermostat_count
+#BT Presence
+  - alias: BT Refresh
+    trigger:
+      - platform: state
+        entity_id: sensor.bt_ashley_front, sensor.bt_ashley_rear, sensor.bt_kevin_front, sensor.bt_kevin_rear
+        to: 'unknown'
+    action:
+      - service: mqtt.publish
+        data:
+          topic: 'monitor/scan/restart'
+  - alias: Kevin Home
+    hide_entity: true
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bt_kevin
+        above: 10
+    action:
+      - service: device_tracker.see
+        data:
+          mac: 40:4E:36:83:A5:7C
+          host_name: Kevin
+          location_name: home
+          
+  - alias: Kevin Away
+    hide_entity: true
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bt_kevin
+        below: 10
+        for:
+          minutes: 2
+    action:
+      - service: device_tracker.see
+        data:
+          mac: 40:4E:36:83:A5:7C
+          host_name: Kevin
+          location_name: not_home
+          
+  - alias: Ashley Home
+    hide_entity: true
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bt_ashley
+        above: 10
+    action:
+      - service: device_tracker.see
+        data:
+          mac: 40:4E:36:3B:E4:41
+          host_name: Ashley
+          location_name: home
+          
+  - alias: Ashley Away
+    hide_entity: true
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bt_ashley
+        below: 10
+        for:
+          minutes: 2
+    action:
+      - service: device_tracker.see
+        data:
+          mac: 40:4E:36:3B:E4:41
+          host_name: Ashley
+          location_name: not_home
+          
+##Arrival and departures
+  - alias: "Back Door Arrive"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.door_window_sensor_158d0002059b3e
+        to: 'on'    
+    action:
+      service: mqtt.publish
+      data:
+        topic: monitor/scan/arrive
+ 
+  - alias: "Kitchen Door Depart"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.door_window_sensor_158d0001b146a1
+        to: 'on'
+    action:
+      service: mqtt.publish
+      data:
+        topic: monitor/scan/depart
+
+#Master Bedroom Button
+  - alias: "Master Bedroom Button"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d0001bf209d
+          click_type: single
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d0001bf209d
+          click_type: double
+    action:
+      - service: light.toggle
+        entity_id: light.master_bedroom_overhead
+        
+#Kitchen Button
+  - alias: "Kitchen Button"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d0001d8dbad
+          click_type: single
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d0001d8dbad
+          click_type: double
+    action:
+      - service: light.toggle
+        entity_id: light.kitchen_overhead
+
+#THERMOSTATS
+  - alias: "LR Thermostat ON"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.living_room_presence
+      to: 'on'
+    condition:
+      - condition: state
+        entity_id: climate.thermostat_cooling_1
+        state: 'cool'
+    action:
+      - service: climate.set_operation_mode
+        data_template:
+          entity_id: climate.livingroom_cool
+          operation_mode: 'cool'
+          
+  - alias: "LR Thermostat OFF"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.living_room_presence
+      to: 'off'
+    action:
+      - service: climate.set_operation_mode
+        data_template:
+          entity_id: climate.livingroom_cool
+          operation_mode: 'off'
+          
+  - alias: "K Thermostat ON"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.kitchen_presence
+      to: 'on'
+    condition:
+      - condition: state
+        entity_id: climate.thermostat_cooling_1
+        state: 'cool'
+    action:
+      - service: climate.set_operation_mode
+        data_template:
+          entity_id: climate.kitchen_cool
+          operation_mode: 'cool'
+          
+  - alias: "K Thermostat OFF"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.kitchen_presence
+      to: 'off'
+    action:
+      - service: climate.set_operation_mode
+        data_template:
+          entity_id: climate.kitchen_cool
+          operation_mode: 'off'
+
+#INTERCOM
+  - alias: "Intercom"
+    trigger:
+      platform: state
+      entity_id: input_text.intercom_message
+    condition:
+      condition: template
+      value_template: '{{ (states.input_text.intercom_message.state | length) > 0 }}'
+    action:
+      - service: script.send_intercom
+
+#Closet Doors
+## Rylan's Closet
+  - alias: "Kiddos Closet Door Open"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.door_window_sensor_158d0001dbd4cc
+      to: 'on'
+    action:
+      - service: light.turn_on
+        entity_id: light.kiddos_closet
+  - alias: "Kiddo's Closet Door Closed"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.door_window_sensor_158d0001dbd4cc
+      to: 'off'
+    action:
+      - service: light.turn_off
+        entity_id: light.kiddos_closet
+        
+## Master Closet
+  - alias: "Master Closet Door Open"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.door_window_sensor_158d0001ab3db4
+      to: 'on'
+    action:
+      - service: light.turn_on
+        entity_id: light.sengled_e11g13_03116e79_1
+  - alias: "Master Closet Door Closed"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.door_window_sensor_158d0001ab3db4
+      to: 'off'
+    action:
+      - service: light.turn_off
+        entity_id: light.sengled_e11g13_03116e79_1
+        
+## Linen Closet
+  - alias: "Linen Closet Door Open"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.linen_closet_door
+      to: 'on'
+    action:
+      - service: light.turn_on
+        entity_id: light.linen_closet
+  - alias: "Linen Closet Door Closed"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.linen_closet_door
+      to: 'off'
+    action:
+      - service: light.turn_off
+        entity_id: light.linen_closet
+        
+#Motion Sensors
+##Hallway
+  - alias: "Hallway Light on"
+    trigger:
+      - platform: event
+        event_type: motion
+        event_data:
+          entity_id: binary_sensor.motion_sensor_158d0001e54198
+    condition:
+      condition: numeric_state
+      entity_id: sun.sun
+      value_template: '{{ state.attributes.elevation }}'
+      below: 1
+    action:
+      service: light.turn_on
+      entity_id: light.sengled_e11g13_0311d3f1_1
+
+  - alias: "Hallway Light off"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.motion_sensor_158d0001e54198
+      to: 'off'
+      for:
+        seconds: 05
+    action:
+      service: light.turn_off
+      entity_id: light.sengled_e11g13_0311d3f1_1
+      
+##Back Porch Light
+  - alias: "BP Light on"
+    trigger:
+      - platform: event
+        event_type: motion
+        event_data:
+          entity_id: binary_sensor.motion_sensor_158d00022ec4b7
+      - platform: state
+        entity_id: binary_sensor.door_window_sensor_158d0001b146a1
+        to: 'on'
+      - platform: state
+        entity_id: binary_sensor.door_window_sensor_158d0002059b3e
+        to: 'on'    
+    condition:
+      - condition: numeric_state
+        entity_id: sun.sun
+        value_template: '{{ state.attributes.elevation }}'
+        below: 1
+      - condition: state
+        entity_id: group.all_devices
+        state: 'home'
+    action:
+      service: light.turn_on
+      entity_id: light.yeelight_rgb_7811dc6b82a0
+      data:
+        brightness: 255
+        rgb_color: 255,178,115
+
+  - alias: "BP Light Off"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_sensor_158d00022ec4b7
+        to: 'off'
+        for:
+          minutes: 03
+    action:
+      service: light.turn_off
+      entity_id: light.yeelight_rgb_7811dc6b82a0
+      
+##Back Porch Alarm
+  - alias: "BP Alarm on"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.door_window_sensor_158d0001b146a1
+        to: 'on'
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: group.all_devices
+          state: 'not_home'
+        - condition: state
+          entity_id: input_boolean.asleep
+          state: 'on'
+    action:
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.dining_room_speaker
+          media_content_id: http://192.168.1.115:8123/local/audio/dog_bark.mp3
+          media_content_type: 'music'  
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.dining_room_speaker
+          volume_level: 1.0
+      - service: light.turn_on
+        entity_id: light.yeelight_rgb_7811dc6b82a0
+        data:
+          effect: "Police"
+      - service: light.turn_on
+        entity_id: light.kitchen_overhead  
+      #- service: xiaomi_aqara.play_ringtone
+        #data:
+          #gw_mac: 7811DCB05F07
+          #ringtone_id: 8
+          #ringtone_vol: 100
+
+  - alias: "BP Alarm Off"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_sensor_158d00022ec4b7
+        to: 'off'
+        for:
+          minutes: 01
+    action:
+      - service: switch.turn_off
+        entity_id: switch.back_porch_state
+      - service: xiaomi_aqara.stop_ringtone
+        data:
+          gw_mac: 7811DCB05F07
+        
+#Teapot Timer
+  - alias: "Teapot Timer"
+    trigger:
+      platform: state
+      entity_id: switch.zwave2
+      from: 'off'
+      to: 'on'
+    action:
+      - delay: 00:10:00
+      - service: switch.turn_off
+        entity_id: switch.zwave2
+        
+#Ashley's Button
+  - alias: "Ashley's Button Lamp"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d00016d8d5d
+          click_type: single
+    action:
+      - service: light.toggle
+        entity_id: light.ashleys_lamp
+        
+  - alias: "Ashley's Button Filter"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d00016d8d5d
+          click_type: double
+    action:
+      - service: switch.toggle
+        entity_id: switch.zwave1
+
+#Kevin's Button
+  - alias: "Kevin's Button Lamp"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d000213522e
+          click_type: single
+    action:
+      - service: light.toggle
+        entity_id: light.kevins_lamp
+        
+  - alias: "Kevin's Button Filter"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d000213522e
+          click_type: double
+    action:
+      - service: switch.toggle
+        entity_id: switch.zwave1
+
+#Wake up lights   
+  - alias: "Wake up"
+    trigger:
+      platform: template
+      value_template: '{{ states.sensor.time.state == states.sensor.alarm_clock_time_long.state }}'
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+        - condition: state
+          entity_id: input_boolean.alarm_clock_status
+          state: 'on'
+    action:
+      service: script.turn_on
+      entity_id: script.wakeup
+      
+      
+#Wake up weekend
+  - alias: "Wake up weekend"
+    trigger:
+      platform: template
+      value_template: '{{ states.sensor.time.state == states.sensor.alarm_clock_wknd_time_long.state }}'
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - sat
+            - sun
+        - condition: state
+          entity_id: input_boolean.alarm_clock_wknd_status
+          state: 'on'
+    action:
+      service: script.turn_on
+      entity_id: script.wakeup_wknd
+
+#Kiddo's alarm
+  - alias: "Kiddo Wakeup"
+    trigger:
+      platform: event
+      event_type: alarm_3_event
+    action:
+      - service: light.turn_on
+        entity_id: light.kiddos_room
+        data:
+          brightness: 128
+          transition: 300
+      - service: homeassistant.turn_off
+        entity_id: fan.kiddos_fan, switch.kiddos_tree
+      - delay: 0:10
+      - service: switch.turn_on
+        entity_id: switch.circadian_lighting_kiddo
+      
+# PRESENCE TRIGGERS
+
+## HERE
+  - alias: "Present"
+    trigger:
+      - platform: state
+        entity_id: group.all_devices
+        from: 'not_home'
+        to: 'home'
+    action:
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_heating_1
+          temperature: '{{ states.input_number.present_heating_target.state | int }}'
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_cooling_1
+          temperature: '{{ states.input_number.present_cooling_target.state | int }}'
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.stored_heating_target 
+          value: '{{ states.input_number.present_heating_target.state | int }}'
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.stored_cooling_target 
+          value: '{{ states.input_number.present_cooling_target.state | int }}'
+
+## AWAY  
+  - alias: "Away"
+    trigger:
+      - platform: state
+        entity_id: group.all_devices
+        from: 'home'
+        to: 'not_home'
+        for: 00:30
+    action:
+      - service: light.turn_off
+        data:
+          entity_id: group.all_lights
+      - service: homeassistant.turn_off
+        data:
+          entity_id: fan.master_bedroom_fan, fan.kitchen_fan, fan.living_room_fan, fan.spare_room_fan
+      - service: switch.turn_off
+        data:
+          entity_id: group.all_switches
+      - service: climate.turn_off
+        data:
+          entity_id: climate.bedroom_cool, climate.kiddos_room_cool, climate.kitchen_cool, climate.livingroom_cool
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_heating_1
+          temperature: '{{ states.input_number.away_heating_target.state | int }}'
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_cooling_1
+          temperature: '{{ states.input_number.away_cooling_target.state | int }}'
+         
+#Thermostat automations
+         
+## COOL ON
+  - alias: Cool ON
+    trigger:
+      - platform: state
+        entity_id: input_boolean.livingroom_cooling
+        to: 'on'
+      - platform: state
+        entity_id: input_boolean.bedroom_cooling
+        to: 'on'
+      - platform: state
+        entity_id: input_boolean.kitchen_cooling
+        to: 'on'
+      - platform: state
+        entity_id: input_boolean.kiddoroom_cooling
+        to: 'on'
+    condition:
+      condition: and
+      conditions:
+        - condition: template
+          value_template: '{{ states.climate.thermostat_cooling_1.attributes.operation_mode == "cool" }}'
+        - condition: numeric_state
+          entity_id: sensor.status_thermostat_count
+          below: 4 
+    action:
+      -  service: script.turn_on
+         entity_id: script.cool_on
+      
+## COOL OFF
+  - alias: Cool OFF
+    trigger:
+      - platform: state
+        entity_id: input_boolean.livingroom_cooling
+        to: 'off'
+      - platform: state
+        entity_id: input_boolean.bedroom_cooling
+        to: 'off'
+      - platform: state
+        entity_id: input_boolean.kitchen_cooling
+        to: 'off'
+      - platform: state
+        entity_id: input_boolean.kiddoroom_cooling
+        to: 'off'
+    condition:
+      condition: and
+      conditions:
+        - condition: template
+          value_template: '{{ states.climate.thermostat_cooling_1.attributes.operation_mode == "cool" }}'
+        - condition: state
+          entity_id: 'input_boolean.kiddoroom_cooling'
+          state: 'off'
+        - condition: state
+          entity_id: 'input_boolean.kitchen_cooling'
+          state: 'off'
+        - condition: state
+          entity_id: 'input_boolean.livingroom_cooling'
+          state: 'off'
+        - condition: state
+          entity_id: 'input_boolean.bedroom_cooling'
+          state: 'off'
+    action:
+      -  service: script.turn_on
+         entity_id: script.cool_off
+
+
+## Set bedroom thermostat target temps
+  - alias: Set Bedroom Temps
+    trigger:
+      -  platform: homeassistant
+         event: start
+    action:
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.bedroom_heat
+          temperature: '{{ states.input_number.bedroom_awake_heat.state | int }}'
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.bedroom_cool
+          temperature: '{{ states.input_number.bedroom_awake_cool.state | int }}'
+      - service: switch.turn_on
+        entity_id: switch.heating_pad
+      
+
+# Google Home Volume
+
+## Rylan
+  - alias: "Rylan's Volume"
+    trigger:
+      - platform: numeric_state
+        entity_id: media_player.googlehome9608
+        value_template: "{{ state.attributes.volume_level }}"
+        above: 0.5
+    action:
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.googlehome9608
+          volume_level: 0.5
+          
+#SMOKE DETECTED
+  - alias: "Smoke Detected"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.smoke_sensor_158d0001a93aed
+        to: 'on'
+        for:
+          seconds: 20
+      - platform: state
+        entity_id: sensor.smokeco_detector_alarm_type
+        to: '1'
+        for:
+          seconds: 20
+    action:
+      -  service: notify.pushbullet
+         data:
+           message: "SMOKE DETECTED!"
+      -  service: script.turn_on
+         entity_id: script.smoke_detected
+          
+#Humidifier
+  #- alias: Humidifier On
+    #trigger:
+      #- platform: template
+        #value_template: "{{ states.sensor.humidity_158d0001f5341e.state | int < states.input_number.bedroom_humidity.state | int - 5 }}"
+    #action:
+      #- service: switch.turn_on
+        #entity_id: switch.humidifier
+        
+  #- alias: Humidifier Off
+    #trigger:
+      #- platform: template
+        #value_template: "{{ states.sensor.humidity_158d0001f5341e.state | int > states.input_number.bedroom_humidity.state | int }}"
+    #action:
+      #- service: switch.turn_off
+        #entity_id: switch.humidifier
+        
+#Rylan's Humidifier
+  #- alias: Rylans Humidifier On
+    #trigger:
+      #- platform: template
+        #value_template: "{{ states.sensor.humidity_158d0001f5341f.state | int < states.input_number.rylans_humidity.state | int - 5 }}"
+    #action:
+      #- service: switch.turn_on
+        #entity_id: switch.rylans_humidifier
+        
+  #- alias: Rylans Humidifier Off
+    #trigger:
+      #- platform: template
+        #value_template: "{{ states.sensor.humidity_158d0001f5341f.state | int > states.input_number.rylans_humidity.state | int }}"
+    #action:
+      #- service: switch.turn_off
+        #entity_id: switch.rylans_humidifier
+
+#Battery Alerts
+  - alias: battery_alert
+    trigger:
+      - platform: time
+        at: '10:00:00'
+      - platform: time
+        at: '18:00:00'
+    condition:
+      - condition: template
+        value_template: >
+            {% macro battery_level() %}
+            {%- set threshold = 20 -%}
+            {% set domains = ['light', 'switch', 'sensor', 'zwave', 'lock'] %}
+            {% for domain in domains -%}
+            {% for item in states[domain] if ((item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown"))) -%}
+            {% if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) -%}
+            {{ item.name }} ({{ item.attributes['battery_level'] }}){%- if not loop.last %}, {% endif -%}{% endif -%}
+            {% if "battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown") -%}
+            {{ item.name }} ({{ item.state }}){% if not loop.last %}, {%- endif %} {% endif -%}
+            {% endfor %}
+            {%- endfor %}
+            {% endmacro %}
+            {{ battery_level() |trim != "" }}
+    action:
+      - service: persistent_notification.create
+        data_template:
+          title: "Low Battery levels"
+          notification_id: low-battery-alert
+          message: >
+            {% macro battery_level() %}
+            {%- set threshold = 20 -%}
+            {% set domains = ['light', 'switch', 'sensor', 'zwave', 'lock'] %}
+            {% for domain in domains -%}
+            {% for item in states[domain] if ((item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown"))) -%}
+            {% if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) -%}
+            {{ item.name }} ({{ item.attributes['battery_level'] }}){%- if not loop.last %}, {% endif -%}{% endif -%}
+            {% if "battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown") -%}
+            {{ item.name }} ({{ item.state }}){% if not loop.last %}, {%- endif %} {% endif -%}
+            {% endfor %}
+            {%- endfor %}
+            {% endmacro %}
+            {{ battery_level() }}
+      - service: notify.slack_notify
+        data_template:
+          message: "Low Battery Levels"
+          data:
+            attachments:
+            - color: '#52c0f2'
+              title: "These devices have low battery levels"
+              text: >
+                {% macro battery_level() %}
+                {%- set threshold = 20 -%}
+                {% set domains = ['light', 'switch', 'sensor', 'zwave', 'lock'] %}
+                {% for domain in domains -%}
+                {% for item in states[domain] if ((item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown"))) -%}
+                {% if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) -%}
+                {{ item.name }} ({{ item.attributes['battery_level'] }}){%- if not loop.last %}, {% endif -%}{% endif -%}
+                {% if "battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown") -%}
+                {{ item.name }} ({{ item.state }}){% if not loop.last %}, {%- endif %} {% endif -%}
+                {% endfor %}
+                {%- endfor %}
+                {% endmacro %}
+                {{ battery_level() }}
+
+  - alias: battery_alert_clear
+    trigger:
+      - platform: time
+        minutes: '/30'
+        seconds: 00
+    condition:
+      - condition: template
+        value_template: >
+            {% macro battery_level() %}
+            {%- set threshold = 20 -%}
+            {% set domains = ['light', 'switch', 'sensor', 'zwave', 'lock'] %}
+            {% for domain in domains -%}
+            {% for item in states[domain] if ((item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown"))) -%}
+            {% if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) -%}
+            {{ item.name }} ({{ item.attributes['battery_level'] }}){%- if not loop.last %}, {% endif -%}{% endif -%}
+            {% if "battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown") -%}
+            {{ item.name }} ({{ item.state }}){% if not loop.last %}, {%- endif %} {% endif -%}
+            {% endfor %}
+            {%- endfor %}
+            {% endmacro %}
+            {{ battery_level() |trim == "" }}
+    action:
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: low-battery-alert
+
+#Vanity Button
+  - alias: "Vanity Button"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d00022389fd
+          click_type: single
+    action:
+      - service: light.toggle
+        entity_id: light.vanity_lights
+      - service: light.toggle
+        entity_id: light.bathroom_overhead
+        
+##Vanity Button
+  #- alias: "Vanity Button"
+    #trigger:
+      #- platform: event
+        #event_type: click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d00022389fd
+          #click_type: double
+    #action:
+      #- service: homeassistant.toggle
+        #entity_id: light.bathroom_overhead
+        
+        
+
+#Desk Lamp Button
+  - alias: "Desk Lamp Button"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d00021364d9
+          click_type: single
+    action:
+      - service: light.toggle
+        entity_id: light.sengled_e11g13_0310f119_1
+
+#LOG LEVEL
+  - alias: Log Level
+    trigger:
+      platform: state
+      entity_id: input_select.log_level
+    action:
+      service: logger.set_level
+      data_template:
+        homeassistant.components: "{{ trigger.to_state.state }}"
+        
+##Living Room Brighten ON
+  #- alias: Living Room Brighten On
+    #initial_state: 'on'
+    #trigger:
+      #- platform: event
+        #event_type: click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001be66dc
+          #click_type: long_click_press
+    #condition:
+      #condition: and
+      #conditions:
+      #- condition: state
+        #entity_id: input_boolean.living_room_switch
+        #state: 'off'
+      #- condition: state
+        #entity_id: light.living_room_overhead
+        #state: 'on'
+    #action:
+      #- service: script.turn_on
+        #entity_id: script.brighten_living_room
+        
+##Living Room Brighten OFF     
+  #- alias: Living Room Brighten off
+    #initial_state: 'on'
+    #trigger:
+      #- platform: state
+        #entity_id: binary_sensor.switch_158d0001be66dc
+        #from: 'on'
+        #to: 'off'
+    #condition:
+      #condition: and
+      #conditions:
+      #- condition: state
+        #entity_id: input_boolean.living_room_switch
+        #state: 'off'
+      #- condition: state
+        #entity_id: light.living_room_overhead
+        #state: 'on'
+    #action:
+      #- service: input_boolean.turn_on
+        #entity_id: input_boolean.living_room_switch
+
+##Living Room Dim ON  
+  #- alias: Living Room Dim On
+    #initial_state: 'on'
+    #trigger:
+      #- platform: event
+        #event_type: click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001be66dc
+          #click_type: long_click_press
+    #condition:
+      #condition: and
+      #conditions:
+      #- condition: state
+        #entity_id: input_boolean.living_room_switch
+        #state: 'on'
+      #- condition: state
+        #entity_id: light.living_room_overhead
+        #state: 'on'
+    #action:
+      #- service: script.turn_on
+        #entity_id: script.dim_living_room
+        
+##Living Room Dim OFF   
+  #- alias: Living Room Dim Off
+    #initial_state: 'on'
+    #trigger:
+      #- platform: state
+        #entity_id: binary_sensor.switch_158d0001be66dc
+        #from: 'on'
+        #to: 'off'
+    #condition:
+      #condition: and
+      #conditions:
+      #- condition: state
+        #entity_id: input_boolean.living_room_switch
+        #state: 'on'
+      #- condition: state
+        #entity_id: light.living_room_overhead
+        #state: 'on'
+    #action:
+      #- service: input_boolean.turn_off
+        #entity_id: input_boolean.living_room_switch
+
+#Living Room Button
+  - alias: "Living Room Button"
+    trigger:
+      - platform: event
+        event_type: click
+        event_data:
+          entity_id: binary_sensor.switch_158d0001be66dc
+          click_type: single
+    action:
+      - service: light.toggle
+        entity_id: light.living_room_overhead
+
+##Living Room Double Dim
+  #- alias: "Living Room 2%"
+    #trigger:
+      #- platform: event
+        #event_type: click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001be66dc
+          #click_type: double
+    #condition:
+      #condition: or
+      #conditions: 
+        #- condition: state
+          #entity_id: light.living_room_overhead
+          #state: 'off'
+        #- condition: template
+          #value_template: '{{states.light.sengled_e11g13_0311dca3_1.attributes.brightness | int == 255}}'
+    #action:
+      #- service: homeassistant.turn_on
+        #entity_id: light.living_room_overhead
+        #data_template:
+          #brightness: "5"
+      #- service: input_boolean.turn_off
+        #entity_id: input_boolean.living_room_switch
+          
+  #- alias: "Living Room 50%"
+    #trigger:
+      #- platform: event
+        #event_type: click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001be66dc
+          #click_type: double
+    #condition: 
+      #- condition: state
+        #entity_id: light.living_room_overhead
+        #state: 'on'
+      #- condition: template
+        #value_template: '{{states.light.sengled_e11g13_0311dca3_1.attributes.brightness | int < 128}}'
+    #action:
+      #- service: homeassistant.turn_on
+        #entity_id: light.living_room_overhead
+        #data_template:
+          #brightness: "128"
+
+  #- alias: "Living Room 100%"
+    #trigger:
+      #- platform: event
+        #event_type: click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001be66dc
+          #click_type: double
+    #condition: 
+      #- condition: state
+        #entity_id: light.living_room_overhead
+        #state: 'on'
+      #- condition: template
+        #value_template: '{{states.light.sengled_e11g13_0311dca3_1.attributes.brightness | int > 5}}'
+      #- condition: template
+        #value_template: '{{states.light.sengled_e11g13_0311dca3_1.attributes.brightness | int < 255}}'
+    #action:
+      #- service: homeassistant.turn_on
+        #entity_id: light.living_room_overhead
+        #data_template:
+          #brightness: "255"
+      #- service: input_boolean.turn_on
+        #entity_id: input_boolean.living_room_switch

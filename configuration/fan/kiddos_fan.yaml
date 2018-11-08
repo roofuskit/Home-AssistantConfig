@@ -1,0 +1,8 @@
+  platform: mqtt
+  name: "Kiddo's Fan"
+  command_topic: "cmnd/sonoff6/POWER1"
+  state_topic: "stat/sonoff6/POWER1"
+  qos: 1
+  payload_on: "ON"
+  payload_off: "OFF"
+  retain: true

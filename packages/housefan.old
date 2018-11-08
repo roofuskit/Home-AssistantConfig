@@ -1,0 +1,60 @@
+#House Fan
+  - alias: "House Fan Timer"
+    trigger:
+      platform: state
+      entity_id: input_boolean.house_fan
+      from: 'off'
+      to: 'on'
+    action:
+      - delay: 00:15
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.house_fan
+        
+  - alias: "House Fan On"
+    trigger:
+      platform: state
+      entity_id: input_boolean.house_fan
+      from: 'off'
+      to: 'on'
+    action:
+      - service: climate.set_fan_mode
+        data_template:
+          entity_id: climate.thermostat_heating_1
+          fan_mode: 'On Low'
+            
+  - alias: "House Fan Off"
+    trigger:
+      platform: state
+      entity_id: input_boolean.house_fan
+      from: 'on'
+      to: 'off'
+    action:
+      - service: climate.set_fan_mode
+        data_template:
+          entity_id: climate.thermostat_heating_1
+          fan_mode: 'Auto Low'
+           
+  - alias: "House Fan Turned On"
+    trigger:
+      platform: template
+      value_template: '{{ states.climate.thermostat_heating_1.attributes.fan_mode == "On Low"}}'
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.house_fan
+            
+  - alias: "House Fan Turned Off"
+    trigger:
+      platform: template
+      value_template: '{{ states.climate.thermostat_heating_1.attributes.fan_mode == "Auto Low"}}'
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.house_fan
+        
+#Bathroom Humidity Control
+  - alias: Bathroom Humidity Control
+    trigger:
+      - platform: template
+        value_template: "{{ states.sensor.humidity_158d0001f5621e.state | int > 55 }}"
+    action:
+      - service: homeassistant.turn_on
+        entity_id: input_boolean.house_fan      

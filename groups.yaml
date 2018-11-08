@@ -1,0 +1,260 @@
+### Views
+default_view:
+  name: "Home"
+  view: yes
+  entities:
+    - device_tracker.kevin
+    - device_tracker.ashley
+    - group.bed_lamps
+    - group.bedroom_switches
+    - sensor.pws_temp_f
+    - sensor.pws_uv
+    - group.bedroom_climate
+    - group.dining_room_climate
+    - group.living_room_climate
+    - group.rylans_climate
+    - group.kitchen_climate
+    - media_player.all_speakers
+    - input_text.intercom_message
+
+bedroom_view:
+  view: yes
+  name: Bedroom
+  entities:
+    - light.master_bedroom_light
+    - fan.master_bedroom_fan
+    - group.bed_lamps
+    - group.bedroom_switches
+    - group.bedroom_climate
+    - group.alarm_clock
+    - group.alarm_clock_weekend
+    - media_player.basement_speaker
+    - light.sengled_e11g13_03116e79_1
+    
+rylans_view:
+  name: Rylan's Room
+  view: yes
+  entities:
+    - light.kiddos_room
+    - light.yeelight_rgb_7811dc6b82a0
+    - group.rylans_climate
+    - switch.kiddos_tree
+    - media_player.rylans_speaker
+    - group.kiddo_room_climate
+
+bathroom_view:
+  name: Bathroom
+  view: yes
+  entities:
+    - light.vanity_lights
+    - binary_sensor.water_leak_sensor_158d0001bb91c9
+    - media_player.bathroom_speaker
+    
+dining_room_view:
+  name: Dining Room
+  view: yes
+  entities:
+    - sensor.illumination_158d00022ec4b7
+    - light.dining_room
+    - group.dining_room_climate
+    - media_player.kitchen_speaker
+    - group.dining_room_presence
+
+kitchen_view:
+  name: Kitchen
+  view: yes
+  entities:
+    - sensor.illumination_158d00022368ec
+    - sensor.illumination_158d00023db739
+    - media_player.master_speaker
+    - binary_sensor.water_leak_sensor_158d0001bb8b81
+    - binary_sensor.water_leak_sensor_158d0001bc1790
+    - sensor.status_smoke_co_alarm
+    - sensor.smokeco_detector_alarm_level
+    - group.kitchen_climate
+    - group.kitchen_presence
+
+living_room_view:
+  name: Living Room
+  view: yes
+  entities:
+    - sensor.illumination_158d0001e541b7
+    - sensor.illumination_158d0001e542cc
+    - sensor.temperature_158d0001f534fc
+    - sensor.humidity_158d0001f534fc
+    - light.living_room_overhead
+    - media_player.living_room_soundbar
+    - media_player.shield
+    - media_player.kodi
+    - light.sengled_e11g13_0310f119_1
+    - group.living_room_climate
+    - group.living_room_presence
+    
+front_hall_view:
+  name: Front Hall
+  view: yes
+  entities:
+    - binary_sensor.smoke_sensor_158d0001a93aed
+    - binary_sensor.motion_sensor_158d0001e54198
+    - light.sengled_e11g13_0311d3f1_1
+    - sensor.illumination_158d0001e54198
+
+backgroud_view:
+  name: Background
+  view: yes
+  entities:
+    - sensor.server_temp
+    - group.all_automations
+    - group.all_scripts
+    - group.sensors
+    - group.thermostat_targets
+    - group.xiaomi
+    - zwave.sigma_designs_uzb_zwave_usb_adapter
+    - group.all_lights
+    - group.all_switches
+    - group.all_sensors
+    - input_select.log_level
+    - binary_sensor.overheating
+
+### Groups
+Rylans Climate:
+    - sensor.temperature_158d0001f5341f
+    - climate.kiddos_room_cool
+    - sensor.humidity_158d0001f5341f
+    - input_number.rylans_humidity
+    - switch.rylans_humidifier
+
+Media Players:
+  - media_player.kodi
+  - media_player.shield
+  - media_player.master_speaker
+  - media_player.soundbar
+  - media_player.rylans_speaker
+  
+Time:
+  - sensor.date
+  - sensor.time
+  - sun.sun
+  
+Scenes:
+  - scene.bedroom_on
+  - scene.morning
+  - scene.normal
+  - scene.relax
+  - scene.bedtime
+  - scene.goodnight
+  - scene.bedroom_off
+
+Sensors:
+  - binary_sensor.back_door
+  
+Dining Room Climate:
+    - climate.thermostat_cooling_1
+
+Thermostat Targets:
+  - sensor.cooling_target
+  - input_number.bedroom_awake_cool
+  - input_number.bedroom_asleep_cool
+  - input_number.present_cooling_target
+  - input_number.away_cooling_target
+  - input_number.sleeping_cooling_target
+  - input_boolean.bedroom_cooling
+  - input_boolean.kitchen_cooling
+  - input_boolean.livingroom_cooling
+  - input_boolean.kiddoroom_cooling
+  
+Bedroom Switches:
+  - switch.filter
+
+Alarm Clock:
+  - sensor.alarm_clock_time
+  - input_number.alarm_clock_hour
+  - input_number.alarm_clock_minute
+  - input_boolean.alarm_clock_status
+
+Alarm Clock Weekend:
+  - sensor.alarm_clock_wknd_time
+  - input_number.alarm_clock_wknd_hour
+  - input_number.alarm_clock_wknd_minute
+  - input_boolean.alarm_clock_wknd_status
+    
+Xiaomi:
+  - sensor.illumination_7811dc6c910e
+  - sensor.illumination_7811dcb05f07
+  - sensor.illumination_158d0001e54198
+  - sensor.illumination_158d00022368ec
+  - light.gateway_light_7811dc6c910e
+  - light.gateway_light_7811dcb05f07
+  - binary_sensor.door_window_sensor_158d0001dbd4cc
+  - binary_sensor.door_window_sensor_158d0001ab3db4
+  - binary_sensor.door_window_sensor_158d0001ab1ec8
+  - binary_sensor.motion_sensor_158d00022368ec
+  - binary_sensor.motion_sensor_158d00023db739
+  - binary_sensor.motion_sensor_158d00022ec4b7
+  - binary_sensor.motion_sensor_158d0001e54198
+  - binary_sensor.motion_sensor_158d0001e541b7
+  - binary_sensor.motion_sensor_158d0001e542cc
+  - binary_sensor.smoke_sensor_158d0001a93aed
+  - binary_sensor.switch_158d0001be66dc
+  - binary_sensor.switch_158d0001bf209d
+  - binary_sensor.switch_158d00016d8d5d
+  - binary_sensor.switch_158d000213522e
+  - binary_sensor.switch_158d0001d8dbad
+  - binary_sensor.switch_158d00021364d9
+  - binary_sensor.switch_158d0001bf209d
+  - binary_sensor.water_leak_sensor_158d0001bb8b81
+  - binary_sensor.water_leak_sensor_158d0001bb91c9
+  - binary_sensor.water_leak_sensor_158d0001bc1790
+  - sensor.humidity_158d0001f5341e
+  - sensor.humidity_158d0001f5341f
+  - sensor.humidity_158d0001f534fc
+  - sensor.humidity_158d0001f5621e
+  - sensor.pressure_158d0001f5341e
+  - sensor.pressure_158d0001f5341f
+  - sensor.pressure_158d0001f534fc
+  - sensor.pressure_158d0001f5621e
+  - sensor.temperature_158d0001f5341e
+  - sensor.temperature_158d0001f5341f
+  - sensor.temperature_158d0001f534fc
+  - sensor.temperature_158d0001f5621e
+
+battery_alert:
+  control: hidden
+  entities:
+    - automation.battery_alert
+    - automation.battery_alert_clear
+    
+Bedroom Climate:
+    - sensor.temperature_158d0001f5341e
+    - climate.bedroom_cool
+    - sensor.humidity_158d0001f5341e
+    - input_number.bedroom_humidity
+    - switch.humidifier
+    
+Kitchen Climate:
+    - sensor.temperature_158d0001f5621e
+    - climate.kitchen_cool
+    - sensor.humidity_158d0001f5621e
+    
+Living Room Climate:
+    - sensor.temperature_158d0001f534fc
+    - climate.livingroom_cool
+    - sensor.humidity_158d0001f534fc
+    
+Bed Lamps:
+    - light.kevins_lamp
+    - light.ashleys_lamp
+    
+Living Room Presence:
+    - binary_sensor.living_room_presence
+    - binary_sensor.lr_media_motion_ext
+    - binary_sensor.lr_office_motion_ext
+    
+Dining Room Presence:
+    - binary_sensor.dining_room_presence
+    - binary_sensor.motion_sensor_158d00022ec4b7
+
+Kitchen Presence:
+    - binary_sensor.kitchen_presence
+    - binary_sensor.kitchen_motion_ext
+    - binary_sensor.spare_room_motion_ext

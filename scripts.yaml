@@ -1,0 +1,422 @@
+  stop_the_vacuum:
+    alias: Stop the Vacuum
+    sequence:
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: stop
+      - delay:
+          seconds: 10
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: return_to_base
+          
+  vacuum_the_kitchen:
+    alias: Vacuum the Kitchen
+    sequence:
+      - condition: state
+        entity_id: 'vacuum.bobby'
+        state: 'docked'
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[17800,18000,24950,21000,1],[21200,21000,24750,24000,1]]
+
+  vacuum_the_diningroom:
+    alias: Vacuum the Diningroom
+    sequence:
+      - condition: state
+        entity_id: 'vacuum.bobby'
+        state: 'docked'
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[21400,24100,26000,33000,1]]
+          
+  vacuum_the_livingroom:
+    alias: Vacuum the Livingroom
+    sequence:
+      - condition: state
+        entity_id: 'vacuum.bobby'
+        state: 'docked'
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[18400,33300,24950,37000,1]]
+          
+  vacuum_the_kiddosroom:
+    alias: Vacuum the Kiddos Room
+    sequence:
+      - condition: state
+        entity_id: 'vacuum.bobby'
+        state: 'docked'
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[17800,22000,21100,27500,1]]
+          
+  vacuum_the_masterbedroom:
+    alias: Vacuum the Master Bedroom
+    sequence:
+      - condition: state
+        entity_id: 'vacuum.bobby'
+        state: 'docked'
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[17800,28400,20900,33000,1]]
+          
+  vacuum_the_apartment:
+    alias: Vacuum the Apartment
+    sequence:
+      - condition: state
+        entity_id: 'vacuum.bobby'
+        state: 'docked'
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[17800,18000,24950,21000,1],[21200,21000,24750,24000,1],[21400,24100,26000,33000,1],[18400,33200,24950,36900,1]]
+  
+  time_for_bed:
+    alias: Time for bed
+    sequence:
+      - service: climate.turn_on
+        data_template:
+          entity_id: climate.bedroom_cool
+      - service: climate.turn_on
+        data_template:
+          entity_id: climate.kiddos_room_cool
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.kitchen_cool
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.livingroom_cool
+      - service: homeassistant.turn_off
+        entity_id: automation.away
+      - service: homeassistant.turn_off
+        entity_id: automation.present
+      - service: fan.set_speed
+        data_template:
+          entity_id: fan.master_bedroom_fan
+          speed: 'medium'
+      - service: fan.turn_off
+        data_template:
+          entity_id: fan.kitchen_fan
+      - service: fan.turn_off
+        data_template:
+          entity_id: fan.living_room_fan
+      - service: fan.turn_off
+        data_template:
+          entity_id: fan.spare_room_fan
+          
+  kiddos_bedtime:
+    alias: Kiddos Bedtime
+    sequence:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.circadian_lighting_kiddo
+      - service: homeassistant.turn_on
+        data:
+          entity_id: switch.kiddos_tree, fan.kiddos_fan
+      - service: light.turn_on
+        data_template:
+          entity_id: light.kiddos_room
+          color_temp: 454
+      - delay:
+          seconds: 5
+      - service: light.turn_on
+        data_template:
+          entity_id: light.kiddos_room
+          brightness: 1
+          transition: 90
+      - service: climate.turn_on
+        data_template:
+          entity_id: climate.kiddos_room_cool
+      - delay:
+          seconds: 30
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.googlehome9608
+          volume_level: 0.5
+      - delay:
+          minutes: 10
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.googlehome9608
+          volume_level: 0.4
+      - delay:
+          minutes: 10
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.googlehome9608
+          volume_level: 0.3
+      - delay:
+          minutes: 10
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.googlehome9608
+          volume_level: 0.2
+      - delay:
+          minutes: 10
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.googlehome9608
+          volume_level: 0.1
+
+  wakeup:
+    alias: Wake Up
+    sequence:
+      - service: switch.turn_on
+        data:
+          entity_id: switch.circadian_lighting_household
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_heating_1
+          temperature: '{{ states.input_number.present_heating_target.state | int }}'
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_cooling_1
+          temperature: '{{ states.input_number.present_cooling_target.state | int }}'
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.bedroom_cool
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.kiddos_room_cool
+      - service: light.turn_off
+        data_template:
+          entity_id: light.centralite_4257050zhac_02f7ac71_1
+      - alias: Teapot
+        service: switch.turn_on
+        data:
+          entity_id: switch.zwave2
+      - service: homeassistant.turn_off
+        entity_id: fan.master_bedroom_fan
+      - alias: Filter
+        service: switch.turn_off
+        data:
+          entity_id: switch.zwave1
+      - delay:
+          minutes: 06
+      - alias: Teapot
+        service: switch.turn_off
+        data:
+          entity_id: switch.zwave2
+      - service: homeassistant.turn_on
+        entity_id: automation.away
+      - service: homeassistant.turn_on
+        entity_id: automation.present
+      - service: homeassistant.turn_off
+        entity_id: input_boolean.asleep
+
+  wakeup_wknd:
+    alias: Wake Up Weekend
+    sequence:
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_heating_1
+          temperature: '{{ states.input_number.present_heating_target.state | int }}'
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_cooling_1
+          temperature: '{{ states.input_number.present_cooling_target.state | int }}'
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.bedroom_cool
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.kiddos_room_cool
+      - alias: Teapot
+        service: switch.turn_on
+        data:
+          entity_id: switch.zwave2
+      - delay:
+          minutes: 06
+      - alias: Teapot
+        service: switch.turn_off
+        data:
+          entity_id: switch.zwave2
+      - service: homeassistant.turn_off
+        entity_id: fan.master_bedroom_fan
+      - service: homeassistant.turn_on
+        entity_id: automation.away
+      - service: homeassistant.turn_on
+        entity_id: automation.present
+      - service: homeassistant.turn_off
+        entity_id: input_boolean.asleep
+          
+  record_bedroom:
+    alias: Record Bedroom Level
+    sequence:
+      - service: input_number.select_value
+        data_template:
+          entity_id: input_number.bedroom_brightness
+          value: '{% if states.light.bedroom_e.state == "off" %}0{% else %}{{states.light.bedroom_e.attributes.brightness}}{% endif %}'
+          
+  return_bedroom:
+    alias: Return Bedroom Level
+    sequence:
+      - service: light.turn_on
+        entity_id: light.bedroom
+        data_template:
+          brightness: '{{states.input_number.bedroom_brightness.state | int}}'
+          
+  goodnight:
+    alias: Goodnight
+    sequence:
+      - service: homeassistant.turn_off
+        data:
+          entity_id: fan.kitchen_fan, fan.living_room_fan, fan.spare_room_fan
+      - service: light.turn_off
+        data:
+          entity_id: light.bed_lamps
+      - service: switch.turn_off
+        data:
+          entity_id: switch.kiddos_tree
+      - service: switch.turn_on
+        data:
+          entity_id: switch.zwave1
+      - service: climate.turn_on
+        data_template:
+          entity_id: climate.bedroom_cool
+      - service: climate.turn_on
+        data_template:
+          entity_id: climate.kiddos_room_cool
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.kitchen_cool
+      - service: climate.turn_off
+        data_template:
+          entity_id: climate.livingroom_cool
+      - service: homeassistant.turn_off
+        entity_id: automation.away
+      - service: homeassistant.turn_off
+        entity_id: automation.present
+      - service: homeassistant.turn_on
+        entity_id: input_boolean.asleep
+          
+  cool_on:
+    alias: Cool ON
+    sequence:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.stored_cooling_target 
+          value: '{{ states.sensor.cooling_target.state | int }}'
+      - delay:
+          seconds: 01
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_cooling_1
+          temperature: 70
+        
+  cool_off:
+    alias: Cool OFF
+    sequence:
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.thermostat_cooling_1
+          temperature: '{{ states.input_number.stored_cooling_target.state | int }}'
+
+  #cool_protect:
+    #alias: Bedroom Cool PROTECT
+    #sequence:
+      #- delay:
+          #seconds: 05
+      #- service: climate.set_temperature
+        #data_template:
+          #entity_id: climate.thermostat_cooling_1
+          #temperature: '{{ states.sensor.thermostat_temperature.state | int - 4 }}'
+          
+  smoke_detected:
+    alias: Smoke Detected Script
+    sequence:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.zwave1
+      - service: homeassistant.turn_off
+        data:
+          entity_id: fan.master_bedroom_fan, fan.kitchen_fan, fan.living_room_fan, fan.spare_room_fan
+      - service: light.turn_on
+        data:
+          entity_id: group.all_lights
+      -  service: climate.turn_off
+         data_template:
+           entity_id: climate.thermostat_cooling_1
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.all_speakers
+          volume_level: 1.0
+      - alias: Send Message
+        service: notify.googleassistant
+        data_template:
+          message: "SMOKE DETECTED, PLEASE INVESTIGATE!"
+      - delay:
+          seconds: 10
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.all_speakers
+          volume_level: 1.0
+      - alias: Send Message
+        service: notify.googleassistant
+        data_template:
+          message: "SMOKE DETECTED, PLEASE INVESTIGATE!"
+
+##Dim Living Room
+  #dim_living_room:
+    #sequence:
+    #- condition: state
+      #entity_id: input_boolean.living_room_switch
+      #state: 'on'
+    #- condition: template
+      #value_template: '{{states.light.sengled_e11g13_0311dca3_1.attributes.brightness | int > 10}}'
+    #- service: homeassistant.turn_on
+      #entity_id: light.living_room_overhead
+      #data_template:
+        #brightness: '{{states.light.sengled_e11g13_0311dca3_1.attributes.brightness | int - 10}}'
+    #- service: script.turn_off
+      #entity_id: script.dim_living_room
+    #- service: script.turn_on
+      #entity_id: script.dim_living_room
+      
+##Brighten Living Room
+  #brighten_living_room:
+    #sequence:
+    #- condition: state
+      #entity_id: input_boolean.living_room_switch
+      #state: 'off'
+    #- service: homeassistant.turn_on
+      #entity_id: light.living_room_overhead
+      #data_template:
+        #brightness: '{{states.light.sengled_e11g13_0311dca3_1.attributes.brightness | int + 10}}'
+    #- service: script.turn_off
+      #entity_id: script.brighten_living_room
+    #- service: script.turn_on
+      #entity_id: script.brighten_living_room
+
+#INTERCOM 
+  send_intercom:
+    alias: Send Intercom
+    sequence:
+      - alias: Send Message
+        service: notify.googleassistant
+        data_template:
+          message: '{{ states.input_text.intercom_message.state }}'
+      - alias: Clear Message
+        service: input_text.set_value
+        data:
+          entity_id: input_text.intercom_message
+          value: ''
+
+#Zigbee Add Devices
+  zigbee_sync:
+    alias: Zigbee Sync
+    sequence:
+      - service: zha.permit

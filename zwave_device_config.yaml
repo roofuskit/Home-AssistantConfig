@@ -1,0 +1,3 @@
+climate.thermostat_heating_1:
+  ignored: true
+  polling_intensity: 0

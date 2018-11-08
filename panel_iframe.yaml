@@ -1,0 +1,4 @@
+tasmoadmin:
+  title: 'TasmoAdmin'
+  url:  'http://192.168.1.115:9999'
+  icon: mdi:home-automation

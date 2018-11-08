@@ -1,0 +1,27 @@
+## COOL PROTECT
+  - alias: Cool Protection
+    trigger:
+      - platform: state
+        entity_id: sensor.cooling_target
+      - condition:
+          condition: and
+          conditions:
+            - condition: template
+              value_template: '{{ states.climate.thermostat_cooling_1.attributes.operation_mode == "cool" }}'
+            - condition: or
+              conditions:
+                - condition: state
+                  entity_id: input_boolean.kitchen_cooling
+                  state: 'on'
+                - condition: state
+                  entity_id: input_boolean.bedroom_cooling
+                  state: 'on'
+                - condition: state
+                  entity_id: input_boolean.livingroom_cooling
+                  state: 'on'
+                - condition: state
+                  entity_id: input_boolean.kiddoroom_cooling
+                  state: 'on'
+    action:
+      - service: script.turn_on
+        entity_id: script.cool_protect

@@ -1,0 +1,833 @@
+homeassistant:
+  customize: !include customize.yaml
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret lat 
+  longitude: !secret long
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: !secret elev
+  # metric for Metric, imperial for Imperial
+  unit_system: imperial
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: America/Chicago
+  # Packages
+  packages: !include_dir_named packages
+  
+# Show links to resources in log and frontend
+#introduction:
+
+# Enables the frontend 
+frontend:
+  javascript_version: latest
+    
+# Enables configuration UI
+config:
+
+api:
+
+http:
+#  api_password: !secret api_password
+
+
+logger:
+  default: warn
+  
+recorder:
+  db_url: !secret db_url
+  purge_keep_days: 14
+  purge_interval: 1
+  
+#Zigbee Home Automation
+zha:
+  usb_path: /dev/ttyUSB1
+  database_path: /home/xbmc/.homeassistant/zigbee.db
+  
+#Z-Wave
+zwave:
+  usb_path: /dev/ttyUSB0
+  network_key: !secret network_key 
+  debug: true
+  
+#Cloud https://www.home-assistant.io/components/google_assistant/
+cloud:
+  google_actions:
+    filter:
+      include_entities:
+        - script.goodnight
+        - script.kiddos_bedtime
+        - script.time_for_bed
+        - script.stop_the_vacuum
+        - script.vacuum_the_kitchen
+        - script.vacuum_the_diningroom
+        - script.vacuum_the_livingroom
+        - script.vacuum_the_kiddosroom
+        - script.vacuum_the_masterbedroom
+        - script.vacuum_the_apartment
+      include_domains:
+        - switch
+        - light
+        - scene
+        - fan
+        - climate
+      exclude_entities:
+        - switch.bedroom_cooling
+        - script.goodnight
+        - scene.bedroom_on
+        - scene.bedroom_off
+        - light.sengled_e11g13_0302ac4d_1
+        - light.sengled_e11g13_03117d0a_1
+        - light.sengled_e11g13_03116e79_1
+        - light.sengled_e11g13_03114527_1
+        - light.sengled_e11g13_0311dca3_1
+        - light.sengled_e11g13_030e229b_1
+        - light.sengled_e11g13_030e8f56_1
+        - light.bedroom
+        - light.bedroom_n
+        - light.bedroom_e
+        - light.bedroom_s
+        - light.bedroom_w 
+        - light.dining_room_1_3
+        - light.dining_room_2_3
+        - light.dining_room_3
+    entity_config:
+      climate.bedroom_cool:
+        name: Bedroom Thermostat
+      climate.kiddos_room_cool:
+        name: Kiddos Thermostat
+      climate.kitchen_cool:
+        name: Kitchen Thermostat
+      climate.livingroom_cool:
+        name: Living Room Thermostat
+      climate.thermostat_cooling_1:
+        name: Dining Room Thermostat
+       
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time.
+history:
+  exclude:
+    entities:
+      - sensor.date
+      - sensor.date__time
+      - sensor.time
+      - sensor.time_utc
+      - sensor.internet_time
+      - light.bedroom_e
+      - light.bedroom_w
+      - light.bedroom_n
+      - light.bedroom_s
+      - sensor.pws_temp_f
+      - sensor.pws_uv
+      - switch.bedroom_cooling
+      - script.goodnight
+      - scene.bedroom_on
+      - scene.bedroom_off
+      - light.sengled_e11g13_0302ac4d_1
+      - light.sengled_e11g13_03117d0a_1
+      - light.sengled_e11g13_03116e79_1
+      - light.sengled_e11g13_03114527_1
+      - light.sengled_e11g13_0311d3f1_1
+      - light.sengled_e11g13_0311dca3_1
+      - light.dining_room_1
+      - light.dining_room_2
+      - light.bedroom
+      - light.bedroom_n
+      - light.bedroom_e
+      - light.bedroom_s
+      - light.bedroom_w 
+      - light.diningroom_1_2
+      - light.diningroom_2_2
+    domains:
+      - automation
+      - group
+      - script
+      - binary_sensor
+      - input_number
+      - media_player
+
+# View all events in a logbook
+logbook:
+  exclude:
+    entities: 
+      - sensor.date
+      - sensor.date__time
+      - sensor.time
+      - sensor.time_utc
+      - sensor.internet_time
+    domains:
+      - group
+
+# Track the sun
+sun:
+
+#CIRCADIAN LIGHTING
+circadian_lighting:
+  #sunset_offset: '-0:30'
+  
+
+#WAKE ON LAN
+wake_on_lan:
+
+#WEATHER
+weather:
+  - platform: darksky
+    api_key: !secret ds_api 
+
+# SENSORS
+sensor:
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+        arg: /media/movies1
+      - type: disk_use_percent
+        arg: /media/movies2
+      - type: disk_use_percent
+        arg: /media/shows1
+      - type: disk_use_percent
+        arg: /media/shows2
+      - type: disk_use_percent
+        arg: /
+      - type: disk_use_percent
+        arg: /media/workhorse
+      - type: load_1m
+      - type: load_5m
+      - type: load_15m
+      - type: memory_use_percent
+##BLUETOOTH
+  - platform: mqtt
+    state_topic: 'monitor/pi_rear/40:4e:36:5b:0e:d4'
+    value_template: '{{ value_json.confidence }}'
+    unit_of_measurement: '%'
+    name: 'BT_Kevin_Rear'
+
+  - platform: mqtt
+    state_topic: 'monitor/pi_rear/40:4e:36:6f:1f:78'
+    value_template: '{{ value_json.confidence }}'
+    unit_of_measurement: '%'
+    name: 'BT_Ashley_Rear'
+    
+  - platform: mqtt
+    state_topic: 'monitor/pi_front/40:4e:36:5b:0e:d4'
+    value_template: '{{ value_json.confidence }}'
+    unit_of_measurement: '%'
+    name: 'BT_Kevin_Front'
+
+  - platform: mqtt
+    state_topic: 'monitor/pi_front/40:4e:36:6f:1f:78'
+    value_template: '{{ value_json.confidence }}'
+    unit_of_measurement: '%'
+    name: 'BT_Ashley_Front'
+    
+  - platform: min_max
+    name: "BT_Kevin"
+    type: max
+    round_digits: 0
+    entity_ids:
+      - sensor.BT_Kevin_Front
+      - sensor.BT_Kevin_Rear
+    
+  - platform: min_max
+    name: "BT_Ashley"
+    type: max
+    round_digits: 0
+    entity_ids:
+      - sensor.BT_Ashley_Front
+      - sensor.BT_Ashley_Rear
+
+##ZONEMINDER
+#  - platform: zoneminder
+#    include_archived: false
+
+##Sun angle
+  - platform: template
+    sensors:
+      solar_angle:
+        friendly_name: "Sun angle"
+        unit_of_measurement: 'degrees'
+        value_template: "{{ states.sun.sun.attributes.elevation }}"
+        
+##Smoke/CO Detector
+  - platform: template
+    sensors:
+      status_smoke_co_alarm:
+        value_template: >-
+            {%- if is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "13") %}
+                Clear
+            {%- elif is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "1") %}
+                Smoke
+            {%- elif is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "2") %}
+                CO
+            {%- elif is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "12") %}
+                Testing
+            {% else %}
+                Unknown
+            {%- endif %}
+        icon_template: >-
+            {%- if is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "13") %}
+                mdi:verified
+            {%- elif is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "1") %}
+                mdi:alert
+            {%- elif is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "2") %}
+                mdi:cloud-alert
+            {%- elif is_state("sensor.first_alert_zcombo_smoke_and_carbon_monoxide_detector_alarm_type", "12") %}
+                mdi:timelapse
+            {% else %}
+                mdi:help-circle
+            {%- endif %}
+        friendly_name: 'Smoke/CO Alarm'
+        
+##THERMOSTAT COUNTER
+  - platform: template
+    sensors:
+      status_thermostat_count:
+        value_template: >-
+          {{ states.climate
+              | selectattr('state', 'eq', 'cool')
+              | list
+              | count
+          }}
+        friendly_name: 'Thermostat Count'
+
+## Weather
+  - platform: wunderground
+    api_key: !secret wu_api 
+    monitored_conditions:
+      - temp_f
+      - UV
+  - platform: darksky
+    api_key: !secret ds_api
+    monitored_conditions:
+      - temperature
+      - humidity
+      - precip_probability
+      - precip_intensity
+      - wind_speed
+      - pressure
+      - wind_bearing
+      - apparent_temperature
+      - icon
+      
+##Server Temp
+  - platform: command_line
+    name: Server Temp
+    command: /usr/bin/sensors | grep "Core0" | cut -c16-19
+    unit_of_measurement: "°c"
+
+## Time and Date
+  - platform: time_date
+    display_options:
+      - 'time'
+
+# Bedroom Temp and Humidity
+#  - platform: mqtt
+#    name: "Bedroom Temp"
+#    state_topic: "tele/S20-01/SENSOR"
+#    value_template: "{{ value_json['DHT22'].Temperature | float - 3.0}}"
+#    unit_of_measurement: "°F"
+    
+#  - platform: mqtt
+#    name: "Bedroom Humidity"
+#    state_topic: "tele/S20-01/SENSOR"
+#    value_template: "{{ value_json['DHT22'].Humidity }}"
+#    unit_of_measurement: "%"
+
+##ALARM CLOCK
+  - platform: template
+    sensors:
+      alarm_clock_hour:
+        value_template: '{{ states.input_number.alarm_clock_hour.state | int }}'
+      alarm_clock_minute:
+        value_template: '{{ states.input_number.alarm_clock_minute.state | int }}'
+      alarm_clock_time:
+        value_template: >-
+          {{ states.sensor.alarm_clock_hour.state }}:
+          {%- if states.sensor.alarm_clock_minute.state|length == 1 -%}
+            0
+          {%- endif -%}
+            {{ states.sensor.alarm_clock_minute.state }}
+      alarm_clock_time_long:
+        value_template: >-
+          {% if states.sensor.alarm_clock_hour.state|length == 1 -%}
+            0
+          {%- endif -%}
+            {{ states.sensor.alarm_clock_hour.state }}:
+          {%- if states.sensor.alarm_clock_minute.state|length == 1 -%}
+            0
+          {%- endif -%}
+            {{ states.sensor.alarm_clock_minute.state }}
+
+  - platform: template
+    sensors:
+      alarm_clock_wknd_hour:
+        value_template: '{{ states.input_number.alarm_clock_wknd_hour.state | int }}'
+      alarm_clock_wknd_minute:
+        value_template: '{{ states.input_number.alarm_clock_wknd_minute.state | int }}'
+      alarm_clock_wknd_time:
+        value_template: >-
+          {{ states.sensor.alarm_clock_wknd_hour.state }}:
+          {%- if states.sensor.alarm_clock_wknd_minute.state|length == 1 -%}
+            0
+          {%- endif -%}
+            {{ states.sensor.alarm_clock_wknd_minute.state }}
+      alarm_clock_wknd_time_long:
+        value_template: >-
+          {% if states.sensor.alarm_clock_wknd_hour.state|length == 1 -%}
+            0
+          {%- endif -%}
+            {{ states.sensor.alarm_clock_wknd_hour.state }}:
+          {%- if states.sensor.alarm_clock_wknd_minute.state|length == 1 -%}
+            0
+          {%- endif -%}
+            {{ states.sensor.alarm_clock_wknd_minute.state }}
+
+##Thermostat Sensors
+
+  - platform: template
+    sensors:
+      cooling_target:
+        unit_of_measurement: "°F"
+        value_template: "{{ states.climate.thermostat_cooling_1.attributes.temperature }}"
+
+# NOTIFICATIONS
+notify:
+  - platform: pushbullet
+    name: pushbullet
+    api_key: !secret pb_api 
+    
+  - platform: rest
+    name: googleassistant
+    resource: http://192.168.1.115:5000/broadcast_message
+
+# PRESENCE DETECTION
+device_tracker:
+#https://github.com/andrewjfreyer/monitor
+
+# Media Players
+media_player:
+  - platform: kodi
+    host: 192.168.1.135
+
+# MQTT BROKER
+mqtt:
+  broker: 192.168.1.115
+  port: 1883
+  client_id: home-assistant-1
+  keepalive: 60
+
+# SWITCHES
+switch:
+
+#  - platform: zoneminder
+#    command_on: Record
+#    command_off: None
+
+  - platform: circadian_lighting
+    name: Household
+    lights_ct:
+      - light.dining_room
+    lights_brightness:
+      - light.living_room_overhead
+      - light.sengled_e11g13_0310f119_1
+      - light.bathroom_overhead
+      - light.sengled_e11g13_03116e79_1
+      - light.linen_closet
+      - light.kiddos_closet
+    sleep_entity: input_boolean.asleep
+    sleep_state: 'on'
+    sleep_brightness: 5
+    sleep_colortemp: 1000
+    min_brightness: 5
+    
+  - platform: circadian_lighting
+    name: Hallway
+    lights_brightness:
+      - light.sengled_e11g13_0311d3f1_1
+      - light.vanity_lights
+    sleep_entity: input_boolean.asleep
+    sleep_state: 'on'
+    sleep_brightness: 5
+    min_brightness: 5
+    max_brightness: 50
+    
+  - platform: circadian_lighting
+    name: Kiddo
+    lights_ct:
+      - light.kiddos_room
+    min_brightness: 10
+    
+  - platform: wake_on_lan
+    name: "Kevins Computer"
+    mac_address: "00-23-54-82-03-72"
+    host: 192.168.1.122
+    
+  - platform: mqtt
+    name: "Sonoff 08 X"
+    command_topic: "cmnd/sonoff8/power"
+    state_topic: "stat/sonoff8/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "S20-01"
+    command_topic: "cmnd/S20-01/power"
+    state_topic: "stat/S20-01/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "Sonoff 04"
+    command_topic: "cmnd/sonoff4/power"
+    state_topic: "stat/sonoff4/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "Sonoff 03"
+    command_topic: "cmnd/sonoff3/power"
+    state_topic: "stat/sonoff3/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "S20-05"
+    command_topic: "cmnd/S20-05/power"
+    state_topic: "stat/S20-05/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "S20-04"
+    command_topic: "cmnd/S20-04/power"
+    state_topic: "stat/S20-04/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "Kiddos Tree"
+    command_topic: "cmnd/sonoff/power"
+    state_topic: "stat/sonoff/POWER"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "S20-06"
+    command_topic: "cmnd/S20-06/power"
+    state_topic: "stat/S20-06/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+
+#LIGHTS
+light:    
+  - platform: group
+    name: Vanity Lights
+    entities:
+      - light.sengled_e11g13_0302ac4d_1
+      - light.sengled_e11g13_03117d0a_1
+      
+  - platform: group
+    name: Bathroom Overhead
+    entities:
+      - light.sengled_e11g13_030e229b_1
+      - light.sengled_e11g13_030e8f56_1
+
+  - platform: group
+    name: Dining Room
+    entities:
+      - light.dining_room_1_3
+      - light.dining_room_2_3
+      
+  - platform: group
+    name: Kiddo's Room
+    entities:
+      - light.bedroom_e
+      - light.bedroom_n
+      - light.bedroom_s
+      
+  - platform: group
+    name: Bed Lamps
+    entities:
+      - light.kevins_lamp
+      - light.ashleys_lamp
+
+  - platform: group
+    name: Living Room Overhead
+    entities:
+      - light.sengled_e11g13_03114527_1
+      - light.sengled_e11g13_0311dca3_1
+      
+  - platform: mqtt
+    name: "Kevin's Lamp"
+    command_topic: "cmnd/S20-03/power"
+    state_topic: "stat/S20-03/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "Ashley's Lamp"
+    command_topic: "cmnd/S20-02/power"
+    state_topic: "stat/S20-02/POWER"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "Master Bedroom Overhead"
+    command_topic: "cmnd/bedroom_fan/POWER1"
+    state_topic: "stat/bedroom_fan/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+    
+  - platform: mqtt
+    name: "Kitchen Overhead"
+    command_topic: "cmnd/kitchen_fan/POWER1"
+    state_topic: "stat/kitchen_fan/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+
+#BINARY SENSORS
+binary_sensor:
+
+  - platform: template
+    sensors:
+      lr_office_motion_ext:
+        device_class: motion
+        friendly_name: "LR Office Motion Ext"
+        delay_off:
+          minutes: 6
+        value_template: "{{ is_state('binary_sensor.motion_sensor_158d0001e542cc', 'on') }}"
+        
+  - platform: template
+    sensors:
+      lr_media_motion_ext:
+        device_class: motion
+        friendly_name: "LR Media Motion Ext"
+        delay_off:
+          minutes: 6
+        value_template: "{{ is_state('binary_sensor.motion_sensor_158d0001e541b7', 'on') }}"
+
+  - platform: template
+    sensors:
+      kitchen_motion_ext:
+        device_class: motion
+        friendly_name: "Kitchen Motion Ext"
+        delay_off:
+          minutes: 6
+        value_template: "{{ is_state('binary_sensor.motion_sensor_158d00022368ec', 'on') }}"
+        
+  - platform: template
+    sensors:
+      spare_room_motion_ext:
+        device_class: motion
+        friendly_name: "Spare Room Motion Ext"
+        delay_off:
+          minutes: 6
+        value_template: "{{ is_state('binary_sensor.motion_sensor_158d00023db739', 'on') }}"    
+        
+    
+  - platform: workday
+    country: "US"
+        
+  - platform: trend
+    sensors:
+      showering:
+        entity_id: sensor.humidity_158d00023761ee
+        sample_duration: 60
+        min_gradient: 0.014
+        
+  - platform: bayesian
+    name: Living Room Presence
+    prior: 0.34
+    observations:
+      - entity_id: 'binary_sensor.lr_media_motion_ext'
+        prob_given_true: 0.75
+        prob_given_false: 0.2
+        platform: 'state'
+        to_state: 'on'
+      - entity_id: 'binary_sensor.lr_office_motion_ext'
+        prob_given_true: 0.75
+        prob_given_false: 0.2
+        platform: 'state'
+        to_state: 'on'
+      - entity_id: 'light.living_room_overhead'
+        prob_given_true: 0.9
+        platform: 'state'
+        to_state: 'on'
+      - entity_id: 'light.sengled_e11g13_0310f119_1'
+        prob_given_true: 0.9
+        platform: 'state'
+        to_state: 'on'    
+      - entity_id: 'media_player.kodi'
+        prob_given_true: 0.9
+        platform: 'state'
+        to_state: 'playing'    
+      - entity_id: 'media_player.kodi'
+        prob_given_true: 0.75
+        platform: 'state'
+        to_state: 'paused'
+      - entity_id: 'media_player.shield'
+        prob_given_true: 0.9
+        platform: 'state'
+        to_state: 'playing'
+      - entity_id: 'media_player.shield'
+        prob_given_true: 0.75
+        platform: 'state'
+        to_state: 'paused'
+      - entity_id: 'switch.kevins_computer'
+        prob_given_true: 0.75
+        platform: 'state'
+        to_state: 'on'
+        
+        
+  - platform: bayesian
+    name: Kitchen Presence
+    prior: 0.40
+    observations:
+      - entity_id: 'binary_sensor.kitchen_motion_ext'
+        prob_given_true: 0.70
+        prob_given_false: 0.2
+        platform: 'state'
+        to_state: 'on'
+      - entity_id: 'binary_sensor.spare_room_motion_ext'
+        prob_given_true: 0.70
+        prob_given_false: 0.2
+        platform: 'state'
+        to_state: 'on'
+      - entity_id: 'switch.zwave2'
+        prob_given_true: 0.9
+        prob_given_false: 0.2
+        platform: 'state'
+        to_state: 'on'
+        
+  #- platform: bayesian
+    #name: Dining Room Presence
+    #prior: 0.30
+    #observations:
+      #- entity_id: 'light.dining_room'
+        #prob_given_true: 0.9
+        #platform: 'state'
+        #to_state: 'on'
+        
+#XIAOMI
+xiaomi_aqara:
+  discovery_retry: 5
+  gateways:
+    - mac: 7811DC6C910E
+      key: !secret mi_front 
+      host: 192.168.1.83
+    - mac: 7811DCB05F07
+      key: !secret mi_rear 
+      host: 192.168.1.82
+    
+    
+# Define input_select
+input_select:
+  log_level:
+    name: Log Level
+    options:
+      - critical
+      - fatal
+      - error
+      - warning
+      - warn
+      - info
+      - debug
+      - notset
+    initial: warn
+
+#INPUT BOOLEAN
+input_boolean:
+  alarm_clock_status:
+    initial: on
+  alarm_clock_wknd_status:
+    initial: on
+  bedroom_cooling:
+    name: 'Bedroom Cooling'
+    initial: off
+  kitchen_cooling:
+    name: 'Kitchen Cooling'
+    initial: off
+  livingroom_cooling:
+    name: 'Living Room Cooling'
+    initial: off
+  kiddoroom_cooling:
+    name: 'Kiddo Room Cooling'
+    initial: off
+  vanity_button:
+    name: 'Vanity Button'
+    initial: off
+  vanity_switch:
+    name: 'Vanity Switch'
+    initial: off
+  living_room_switch:
+    name: 'Living Room Switch'
+    initial: off
+  rylans_switch:
+    name: 'Rylans Switch'
+    initial: off
+  asleep:
+    name: 'Asleep'
+    initial: off
+  
+input_text:
+  intercom_message:
+    name: Intercom Message
+    
+climate: !include_dir_list configuration/climate/
+
+fan: !include_dir_list configuration/fan/
+
+vacuum:
+  - platform: xiaomi_miio
+    host: 192.168.1.120
+    token: !secret mi_vac 
+    name: Bobby
+
+#zoneminder:
+#  host: 192.168.1.115
+  
+#camera:
+#  - platform: zoneminder
+  
+    
+group: !include groups.yaml
+automation: !include automations.yaml
+scene: !include scenes.yaml
+script: !include scripts.yaml
+input_number: !include slider.yaml
+panel_iframe: !include panel_iframe.yaml

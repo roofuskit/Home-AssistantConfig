@@ -1,0 +1,42 @@
+## BEDROOM HEAT ON
+  - alias: Bedroom Heat ON
+    trigger:
+      - platform: state
+        entity_id: input_boolean.bedroom_heating
+        to: 'on'
+    condition:
+      - condition: template
+        value_template: '{{ states.climate.thermostat_heating_1.attributes.operation_mode == "Heat" }}'
+    action:
+      -  service: script.turn_on
+         entity_id: script.bedroom_heat_on
+      
+## BEDROOM HEAT OFF
+  - alias: Bedroom Heat OFF
+    trigger:
+      - platform: state
+        entity_id: input_boolean.bedroom_heating
+        to: 'off'
+    condition:
+      - condition: template
+        value_template: '{{ states.climate.thermostat_heating_1.attributes.operation_mode == "Heat" }}'
+    action:
+      -  service: script.turn_on
+         entity_id: script.bedroom_heat_off
+
+## BEDROOM HEAT PROTECT
+  - alias: Bedroom Heat Protection
+    trigger:
+      -  platform: state
+         entity_id: sensor.heating_target
+    condition:
+      condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.bedroom_heating
+        state: 'on'
+      - condition: template
+        value_template: '{{ states.climate.thermostat_heating_1.attributes.operation_mode == "Heat" }}'
+    action:
+      -  service: script.turn_on
+         entity_id: script.bedroom_heat_protect

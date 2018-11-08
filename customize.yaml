@@ -1,0 +1,167 @@
+input_boolean.house_fan:
+  friendly_name: House Fan
+  icon: mdi:fan
+switch.filter:
+  icon: mdi:fan
+switch.monitor:
+  icon: mdi:monitor
+switch.humidifier:
+  icon: mdi:water-percent
+switch.rylans_humidifier:
+  icon: mdi:water-percent
+script.goodnight:
+  icon: mdi:hotel
+sensor.time:
+  hidden: true
+sensor.alarm_clock_hour:
+  hidden: true
+sensor.alarm_clock_minute:
+  hidden: true
+sensor.alarm_clock_time_long:
+  hidden: true
+sensor.alarm_clock_time:
+  friendly_name: Alarm Clock Setting
+  icon: mdi:alarm
+input_slider.alarm_clock_hour:
+  friendly_name: Hour
+  icon: mdi:timer
+input_slider.alarm_clock_minute:
+  friendly_name: Minute
+  icon: mdi:timer
+input_boolean.alarm_clock_status:
+  friendly_name: Alarm Clock Status
+  icon: mdi:alarm-check
+sensor.alarm_clock_wknd_hour:
+  hidden: true
+sensor.alarm_clock_wknd_minute:
+  hidden: true
+sensor.alarm_clock_wknd_time_long:
+  hidden: true
+sensor.alarm_clock_wknd_time:
+  friendly_name: Weekend Alarm Clock Setting
+  icon: mdi:alarm
+input_slider.alarm_clock_wknd_hour:
+  friendly_name: Hour
+  icon: mdi:timer
+input_slider.alarm_clock_wknd_minute:
+  friendly_name: Minute
+  icon: mdi:timer
+input_boolean.alarm_clock_wknd_status:
+  friendly_name: Weekend Alarm Clock Status
+  icon: mdi:alarm-check
+binary_sensor.switch_158d00016d8d5d:
+  friendly_name: Ashleys Button
+binary_sensor.door_window_sensor_158d0001dbd4cc:
+  friendly_name: Kiddos Closet Door
+  device_class: opening
+binary_sensor.door_window_sensor_158d0001ab3db4:
+  friendly_name: Master Closet Door
+  device_class: opening
+binary_sensor.smoke_sensor_158d0001a93aed:
+  device_class: smoke
+sensor.humidity_158d0001f5341e:
+  friendly_name: Bedroom Humidity
+  icon: mdi:water-percent
+binary_sensor.switch_158d0001bf209d:
+  friendly_name: Broken Button
+binary_sensor.switch_158d000213522e:
+  friendly_name: Kevins Button
+sensor.temperature_158d0001f5341f:
+  friendly_name: Ry Bedroom Temp
+sensor.humidity_158d0001f5341f:
+  friendly_name: Ry Bedroom Humidity
+  icon: mdi:water-percent
+sensor.pressure_158d0001f5341f:
+  friendly_name: Ry Bedroom Pressure
+binary_sensor.switch_158d00021364d9:
+  friendly_name: Desk Lamp Button
+light.rylans_bedroom:
+  icon: mdi:lightbulb
+package.node_anchors:
+  customize:
+    package: battery_alert
+  expose:
+    package: battery_alert
+    haaska_hidden: false
+    homebridge_hidden: false
+group.battery_alert:
+  package: battery_alert
+  friendly_name: Battery Alert
+  icon: mdi:steam
+group.all_automations:
+  hidden: false
+  friendly_name: Automations
+group.all_scripts:
+  hidden: false
+  friendly_name: Scripts
+group.all_devices:
+  hidden: false
+  friendly_name: Devices
+group.all_lights:
+  hidden: false
+  friendly_name: Lights
+group.all_switches:
+  hidden: false
+  friendly_name: Switches
+automation.battery_alert:
+  package: battery_alert
+  friendly_name: Battery Alert
+automation.battery_alert_clear:
+  package: battery_alert
+  friendly_name: Battery Alert Clear
+input_number.bedroom_humidity:
+  icon: mdi:water-percent
+input_number.heating_target:
+  icon: mdi:fire
+input_number.cooling_target:
+  icon: mdi:snowflake
+input_number.present_heating_target:
+  icon: mdi:home
+input_number.away_heating_target:
+  icon: mdi:home-outline
+input_number.present_cooling_target:
+  icon: mdi:home
+input_number.away_cooling_target:
+  icon: mdi:home-outline
+input_number.sleeping_cooling_target:
+  icon: mdi:sleep
+input_number.bedroom_awake_heat:
+  icon: mdi:sleep-off
+input_number.bedroom_asleep_heat:
+  icon: mdi:sleep
+input_number.bedroom_awake_cool:
+  icon: mdi:sleep-off
+input_number.bedroom_asleep_cool:
+  icon: mdi:sleep
+input_number.rylans_humidity:
+  icon: mdi:water-percent
+climate.bedroom_heat:
+  icon: mdi:fire
+climate.bedroom_cool:
+  icon: mdi:snowflake
+climate.thermostat_heating_1:
+  icon: mdi:fire
+  friendly_name: Thermostat Heat
+climate.thermostat_cooling_1:
+  icon: mdi:snowflake
+  friendly_name: Thermostat Cool
+sensor.pws_temp_f:
+  friendly_name: Outdoor Temp
+climate.bedroom_heating:
+  icon: mdi:fire
+climate.bedroom_cooling:
+  icon: mdi:snowflake
+light.sengled_e11g13_0310f119_1:
+  icon: mdi:lamp
+light.ashleys_lamp:
+  icon: mdi:lamp
+light.kevins_lamp:
+  icon: mdi:lamp
+binary_sensor.overheating:
+  friendly_name: Overheating
+sensor.unknown_node_3_alarm_level:
+  friendly_name: Smoke/CO Alarm Level
+sensor.unknown_node_3_alarm_type:
+  friendly_name: Smoke/CO Alarm Type
+light.yeelight_rgb_7811dc6b82a0:
+  friendly_name: Back Porch

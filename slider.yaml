@@ -1,0 +1,116 @@
+  bedroom_brightness:
+    name: Bedroom Brightness
+    initial: 25
+    min: 0
+    max: 255
+    step: 1
+
+  present_heating_target:
+    name: Hall Here Heat
+    initial: 66
+    min: 60
+    max: 80
+    step: 1
+
+  away_heating_target:
+    name: Hall Away Heat
+    initial: 64
+    min: 60
+    max: 80
+    step: 1
+    
+  present_cooling_target:
+    name: Hall Here Cool
+    initial: 76
+    min: 60
+    max: 80
+    step: 1
+
+  away_cooling_target:
+    name: Hall Away Cool
+    initial: 77
+    min: 60
+    max: 80
+    step: 1
+    
+  sleeping_cooling_target:
+    name: Hall Sleep Cool
+    initial: 75
+    min: 60
+    max: 80
+    step: 1
+
+  alarm_clock_hour:
+    initial: 5
+    min: 0
+    max: 23
+    step: 1
+
+  alarm_clock_minute:
+    initial: 26
+    min: 0
+    max: 59
+    step: 1
+    
+  alarm_clock_wknd_hour:
+    initial: 7
+    min: 0
+    max: 23
+    step: 1
+
+  alarm_clock_wknd_minute:
+    initial: 0
+    min: 0
+    max: 59
+    step: 1
+    
+  stored_heating_target:
+    min: 0
+    max: 100
+  
+  stored_cooling_target:
+    min: 0
+    max: 100
+    
+  bedroom_awake_heat:
+    name: Bedroom Awake Heat
+    initial: 69
+    min: 65
+    max: 80
+    step: 1
+
+  bedroom_asleep_heat:
+    name: Bedroom Asleep Heat
+    initial: 67
+    min: 60
+    max: 75
+    step: 1
+    
+  bedroom_awake_cool:
+    name: Bedroom Awake Cool
+    initial: 76
+    min: 65
+    max: 80
+    step: 1
+    
+  bedroom_asleep_cool:
+    name: Bedroom Asleep Cool
+    initial: 75
+    min: 65
+    max: 80
+    step: 1
+
+  bedroom_humidity:
+    name: Bedroom Humidity
+    initial: 30
+    min: 30
+    max: 60
+    step: 1
+    
+  rylans_humidity:
+    name: Rylans Humidity
+    initial: 30
+    min: 30
+    max: 60
+    step: 1
+

@@ -1,0 +1,95 @@
+input_number:
+    alarm_3_hour:
+        name: Hours
+        icon: mdi:timer
+        initial: 5
+        min: 0
+        max: 23
+        step: 1
+    alarm_3_minutes:
+        name: Minutes
+        icon: mdi:timer
+        initial: 55
+        min: 0
+        max: 59
+        step: 1
+
+input_boolean:
+    alarm_3_weekday:
+        name: Weekdays
+        initial: on
+        icon: mdi:calendar
+    alarm_3_weekend:
+        name: Weekends
+        initial: off
+        icon: mdi:calendar
+
+sensor:
+    - platform: template
+      sensors:
+         alarm_3_time:
+              friendly_name: 'Time'
+              value_template: >-
+                  {{ "%0.02d:%0.02d" | format(states("input_number.alarm_3_hour") | int, states("input_number.alarm_3_minutes") | int) }}
+
+group:
+    alarm_3:
+        name: Wake Me Up
+        entities:
+            - sensor.alarm_3_time
+            - input_number.alarm_3_hour
+            - input_number.alarm_3_minutes
+            - input_boolean.alarm_3_weekday
+            - input_boolean.alarm_3_weekend
+
+
+automation:
+    - id: alarm_3_weekdays
+      alias: "Wake me up (week)"
+      trigger:
+          - platform: time
+            minutes: '/1'
+            seconds: 0
+      condition:
+          - condition: state
+            entity_id: input_boolean.alarm_3_weekday
+            state: 'on'
+          - condition: time
+            weekday:
+                - mon
+                - tue
+                - wed
+                - thu
+                - fri
+          - condition: template
+            value_template: >-
+                {{ now().strftime("%H:%M") == states.sensor.alarm_3_time.state }}
+      action:
+          - event: alarm_3_event
+            event_data:
+                name: Alarm 3 Triggered
+                type: Weekdays
+
+    - id: alarm_3_weekend
+      alias: "Wake me up (weekend)"
+      trigger:
+          - platform: time
+            minutes: '/1'
+            seconds: 0
+      condition:
+          - condition: state
+            entity_id: input_boolean.alarm_3_weekend
+            state: 'on'
+          - condition: time
+            weekday:
+                - sat
+                - sun
+          - condition: template
+            value_template: >-
+                {{ now().strftime("%H:%M") == states.sensor.alarm_3_time.state }}
+
+      action:
+          event: alarm_3_event
+          event_data:
+              name: Alarm 3 Triggered
+              type: Weekends
