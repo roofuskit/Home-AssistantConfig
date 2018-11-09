@@ -1,3 +1,46 @@
+#Back Porch Motion
+  - alias: Back Porch Motion
+    trigger:
+      - platform: webhook
+        webhook_id: !secret motioneye_motion
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: group.all_devices
+          state: 'not_home'
+        - condition: state
+          entity_id: input_boolean.asleep
+          state: 'on'
+    action:
+      - service: notify.hass
+        data_template:
+          message: >
+            {{ trigger.data }}
+      - service: notify.pushbullet
+        data:
+          message: >
+            {{ trigger.data }}
+      - service: notify.pushbullet
+        data:
+          message: "BACK PORCH MOTION"
+
+
+#Mylar and headphones
+  - alias: downloads
+    trigger: 
+      - platform: state
+        entity_id: input_boolean.asleep
+        to: 'on'
+        for: 02:00:00
+    action:
+      - service: shell_command.unpause_mylar
+      - delay: 02:00:00
+      - service: shell_command.pause_mylar
+      - service: shell_command.unpause_headphones
+      - delay: 02:00:00
+      - service: shell_command.pause_headphones
+
 #Bathroom Humidity Control
   - alias: Bathroom Humidity Control
     trigger:
@@ -65,15 +108,16 @@
 #STARTUP
   - alias: Startup
     trigger:
-      - platform: event
-        event_type: homeassistant_start
+      - platform: homeassistant
+        event: start
     action:
-      - delay: 00:00:30
+      - delay: 00:00:15
       - service: homeassistant.update_entity
         entity_id: sensor.status_thermostat_count
       - service: mqtt.publish
         data:
           topic: "monitor/scan/restart"
+      
 #THERMOSTAT COUNT
   - alias: Thermostat Count
     trigger:
@@ -368,15 +412,12 @@
         entity_id: sun.sun
         value_template: '{{ state.attributes.elevation }}'
         below: 1
-      - condition: state
-        entity_id: group.all_devices
-        state: 'home'
     action:
       service: light.turn_on
       entity_id: light.yeelight_rgb_7811dc6b82a0
       data:
         brightness: 255
-        rgb_color: 255,178,115
+        #rgb_color: 255,178,115
 
   - alias: "BP Light Off"
     trigger:

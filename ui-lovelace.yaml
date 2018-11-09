@@ -102,6 +102,9 @@ views:
                 entity: light.yeelight_rgb_7811dc6b82a0
                 tap_action: toggle
                 hold_action: more-info
+              - type: entity-button
+                name: Camera
+                entity: camera.back_porch
           - type: horizontal-stack
             cards:
               - type: entity-button

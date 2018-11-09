@@ -821,8 +821,12 @@ vacuum:
 #zoneminder:
 #  host: 192.168.1.115
   
-#camera:
+camera:
 #  - platform: zoneminder
+   - platform: mjpeg
+     name: Back Porch
+     mjpeg_url: http://192.168.1.159:8081
+     still_image_url: http://192.168.1.159/picture/1/current/
   
     
 group: !include groups.yaml
@@ -831,3 +835,4 @@ scene: !include scenes.yaml
 script: !include scripts.yaml
 input_number: !include slider.yaml
 panel_iframe: !include panel_iframe.yaml
+shell_command: !include shell_command.yaml
