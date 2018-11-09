@@ -13,6 +13,9 @@ homeassistant:
   time_zone: America/Chicago
   # Packages
   packages: !include_dir_named packages
+  whitelist_external_dirs:
+    - /media/workhorse/camera
+  
   
 # Show links to resources in log and frontend
 #introduction:
@@ -64,6 +67,7 @@ cloud:
         - script.vacuum_the_kiddosroom
         - script.vacuum_the_masterbedroom
         - script.vacuum_the_apartment
+        - script.back_porch_camera
       include_domains:
         - switch
         - light
@@ -410,6 +414,18 @@ notify:
   - platform: rest
     name: googleassistant
     resource: http://192.168.1.115:5000/broadcast_message
+    
+  - name: kevin_telegram
+    platform: telegram
+    chat_id: !secret kevin_chat
+    
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_api
+    allowed_chat_ids:
+      - !secret kevin_chat
+      
+
 
 # PRESENCE DETECTION
 device_tracker:
@@ -827,6 +843,11 @@ camera:
      name: Back Porch
      mjpeg_url: http://192.168.1.159:8081
      still_image_url: http://192.168.1.159/picture/1/current/
+     
+folder_watcher:
+  - folder: /media/workhorse/camera
+    patterns:
+      - '*.mp4'
   
     
 group: !include groups.yaml

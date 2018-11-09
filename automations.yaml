@@ -1,5 +1,5 @@
 #Back Porch Motion
-  - alias: Back Porch Motion
+  - alias: Motion Snapshot Alert
     trigger:
       - platform: webhook
         webhook_id: !secret motioneye_motion
@@ -13,17 +13,40 @@
           entity_id: input_boolean.asleep
           state: 'on'
     action:
-      - service: notify.hass
-        data_template:
-          message: >
-            {{ trigger.data }}
-      - service: notify.pushbullet
+      - service: notify.kevin_telegram
+        data:        
+          title: back porch image
+          message: "back porch snapshot"
+          data:
+            photo:
+              - url: http://192.168.1.159/picture/1/current
+              
+  - alias: New Video Alert
+    trigger:
+      - platform: event
+        event_type: folder_watcher
+        event_data:
+          event_type: created
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: group.all_devices
+          state: 'not_home'
+        - condition: state
+          entity_id: input_boolean.asleep
+          state: 'on'
+    action:
+      #don't try to upload the file before it finishes uploading to the server.
+    - delay: 00:00:15
+    - service: notify.kevin_telegram
+      data_template:
+        title: "Motion Event"
+        message: "Created {{ trigger.event.data.file }} in {{ trigger.event.data.folder }}"
         data:
-          message: >
-            {{ trigger.data }}
-      - service: notify.pushbullet
-        data:
-          message: "BACK PORCH MOTION"
+          video:
+            - file: "{{ trigger.event.data.path }}"
+              caption: "{{ trigger.event.data.file }}"
 
 
 #Mylar and headphones
@@ -429,6 +452,8 @@
     action:
       service: light.turn_off
       entity_id: light.yeelight_rgb_7811dc6b82a0
+      data:
+        transition: 30
       
 ##Back Porch Alarm
   - alias: "BP Alarm on"
@@ -768,7 +793,7 @@
         for:
           seconds: 20
     action:
-      -  service: notify.pushbullet
+      -  service: notify.kevin_telegram
          data:
            message: "SMOKE DETECTED!"
       -  service: script.turn_on
