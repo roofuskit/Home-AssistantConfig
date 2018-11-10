@@ -57,12 +57,17 @@
         to: 'on'
         for: 02:00:00
     action:
-      - service: shell_command.unpause_mylar
+    #changed to restfull switches using ha-dockermon, functionality will persist if I start using HA in Docker.
+      - service: switch.turn_on
+        entity_id: switch.mylar_pauseunpause
       - delay: 02:00:00
-      - service: shell_command.pause_mylar
-      - service: shell_command.unpause_headphones
+      - service: switch.turn_off
+        entity_id: switch.mylar_pauseunpause
+      - service: switch.turn_on
+        entity_id: switch.headphones_pauseunpause
       - delay: 02:00:00
-      - service: shell_command.pause_headphones
+      - service: switch.turn_off
+        entity_id: switch.headphones_pauseunpause
 
 #Bathroom Humidity Control
   - alias: Bathroom Humidity Control

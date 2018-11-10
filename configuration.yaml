@@ -446,6 +446,20 @@ mqtt:
 # SWITCHES
 switch:
 
+  - platform: rest
+    name: 'Mylar Pause/Unpause'
+    resource: http://192.168.1.115:8126/container/mylar
+    body_on: '{"state": "unpause"}'
+    body_off: '{"state": "pause"}'
+    is_on_template: '{{ value_json is not none and value_json.state=="running" }}'
+     
+  - platform: rest
+    name: 'Headphones Pause/Unpause'
+    resource: http://192.168.1.115:8126/container/headphones
+    body_on: '{"state": "unpause"}'
+    body_off: '{"state": "pause"}'
+    is_on_template: '{{ value_json is not none and value_json.state=="running" }}'
+
 #  - platform: zoneminder
 #    command_on: Record
 #    command_off: None
@@ -496,7 +510,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "S20-01"
@@ -505,7 +519,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "Sonoff 04"
@@ -514,7 +528,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "Sonoff 03"
@@ -523,7 +537,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "S20-05"
@@ -532,7 +546,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "S20-04"
@@ -541,7 +555,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "Kiddos Tree"
@@ -550,7 +564,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "S20-06"
@@ -559,7 +573,7 @@ switch:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
 
 #LIGHTS
 light:    
@@ -607,7 +621,7 @@ light:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "Ashley's Lamp"
@@ -616,7 +630,7 @@ light:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "Master Bedroom Overhead"
@@ -625,7 +639,7 @@ light:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
     
   - platform: mqtt
     name: "Kitchen Overhead"
@@ -634,7 +648,7 @@ light:
     qos: 1
     payload_on: "ON"
     payload_off: "OFF"
-    retain: true
+    retain: false
 
 #BINARY SENSORS
 binary_sensor:
