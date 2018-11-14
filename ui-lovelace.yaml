@@ -1,6 +1,8 @@
 resources:
   - url: /local/custom-lovelace/monster-card/monster-card.js?v=1
     type: module
+  - url: /local/custom-ui/migrate-card/migrate-card.js
+    type: module
 
 title: Home
 views:
@@ -88,7 +90,8 @@ views:
           - entity: binary_sensor.motion_sensor_158d0001e54198
             name: Front Hall
       #BUTTONS
-      - type: vertical-stack
+      - id: 03be55432270437d8e9d56fd2e1c37f3  # Automatically created id
+        type: vertical-stack
         cards:
           - type: horizontal-stack
             cards:
@@ -130,12 +133,18 @@ views:
                 service: script.turn_on
                 service_data:
                   entiy_id: script.stop_the_vacuum
-                
+
       - id: 238548bdf1024d2aa386199c6948bd69  # Automatically created id
         type: entities
         show_header_toggle: false
         entities:
           - vacuum.bobby
+      - id: 071f144e086b4bfba1eeb1d08264b0eb  # Automatically created id
+        type: picture-glance
+        title: Back Porch
+        entities:
+          - light.back_porch
+        camera_image: camera.back_porch
 
 #LIVING ROOM
   - id: 1  # Automatically created id
@@ -145,7 +154,8 @@ views:
       - id: a61bf4f837414a979eceac1c7a36e33e  # Automatically created id
         type: thermostat
         entity: climate.livingroom_cool
-      - type: vertical-stack
+      - id: 869b2b22aa174b4f8098976c93ed6c8b  # Automatically created id
+        type: vertical-stack
         cards:
           - type: horizontal-stack
             cards:
@@ -203,7 +213,8 @@ views:
       - id: 94214d75ba784cf9bdb9edfb35dcda57  # Automatically created id
         type: thermostat
         entity: climate.kitchen_cool
-      - type: vertical-stack
+      - id: eee80d7ec38046058a36585f4484bd03  # Automatically created id
+        type: vertical-stack
         cards:
           - type: horizontal-stack
             cards:
@@ -237,25 +248,25 @@ views:
                 name: Low
                 tap_action: call-service
                 service: fan.set_speed
-                service_data: 
+                service_data:
                   entity_id: fan.kitchen_fan
-                  speed: 'low'
+                  speed: low
               - type: entity-button
                 entity: fan.kitchen_fan
                 name: Med
                 tap_action: call-service
                 service: fan.set_speed
-                service_data: 
+                service_data:
                   entity_id: fan.kitchen_fan
-                  speed: 'medium'
+                  speed: medium
               - type: entity-button
                 entity: fan.kitchen_fan
                 name: High
                 tap_action: call-service
                 service: fan.set_speed
-                service_data: 
+                service_data:
                   entity_id: fan.kitchen_fan
-                  speed: 'high'
+                  speed: high
       - id: 381187536a4f4285a394b30944bfa64a  # Automatically created id
         type: media-control
         entity: media_player.kitchen_speaker
@@ -282,13 +293,15 @@ views:
         type: thermostat
         entity: climate.bedroom_cool
       #BUTTONS
-      - type: vertical-stack
+      - id: e49b8724819d45bba9d686f9a8866e99  # Automatically created id
+        type: vertical-stack
         cards:
           - type: horizontal-stack
             cards:
               - type: entity-button
                 entity: switch.zwave1
                 name: Filter
+                icon: mdi:fan
                 tap_action: toggle
                 hold_action: more-info
               - type: entity-button
@@ -333,26 +346,27 @@ views:
                 name: Low
                 tap_action: call-service
                 service: fan.set_speed
-                service_data: 
+                service_data:
                   entity_id: fan.master_bedroom_fan
-                  speed: 'low'
+                  speed: low
               - type: entity-button
                 entity: fan.master_bedroom_fan
                 name: Med
                 tap_action: call-service
                 service: fan.set_speed
-                service_data: 
+                service_data:
                   entity_id: fan.master_bedroom_fan
-                  speed: 'medium'
+                  speed: medium
               - type: entity-button
                 entity: fan.master_bedroom_fan
                 name: High
                 tap_action: call-service
                 service: fan.set_speed
-                service_data: 
+                service_data:
                   entity_id: fan.master_bedroom_fan
-                  speed: 'high'
-      - type: media-control
+                  speed: high
+      - id: 598e794c3f954a0aa7d3603672a0218d  # Automatically created id
+        type: media-control
         entity: media_player.googlehome0173
       - id: d63da92adb604f5f9703c1d5dd5068b6  # Automatically created id
         type: entities
@@ -377,7 +391,8 @@ views:
       - id: 7d8e7c192a2442eb83845fbc393f9ac8  # Automatically created id
         type: thermostat
         entity: climate.kiddos_room_cool
-      - type: vertical-stack
+      - id: 65b8ac95d6664b8aac2f0b13c689168f  # Automatically created id
+        type: vertical-stack
         cards:
           - type: horizontal-stack
             cards:
@@ -420,9 +435,9 @@ views:
       - id: b7c32ee9b3064846b1793986705643f6  # Automatically created id
         type: media-control
         entity: media_player.googlehome9608
-      - id: d63da92adb604f5f9703c1d5dd5068b6  # Automatically created id
+      - id: 9f4c290733d14d36ac0b4e6c07aaa90e  # Automatically created id
         type: entities
-        title: Alarm Clock
+        title: Kiddo's Alarm Clock
         show_header_toggle: false
         entities:
           - sensor.alarm_3_time
@@ -433,7 +448,8 @@ views:
     title: Bathroom
     icon: mdi:toilet
     cards:
-      - type: vertical-stack
+      - id: 058015e98259477dbf14e5d0a35cbae7  # Automatically created id
+        type: vertical-stack
         cards:
           - type: horizontal-stack
             cards:
@@ -464,7 +480,8 @@ views:
       - id: 9dae276b701a44ce88dbc1c1ec2b88db  # Automatically created id
         type: thermostat
         entity: climate.thermostat_cooling_1
-      - type: vertical-stack
+      - id: b91eb86f078b4de8ab9d97a3c7389b9f  # Automatically created id
+        type: vertical-stack
         cards:
           - type: horizontal-stack
             cards:
@@ -485,97 +502,103 @@ views:
         type: media-control
         entity: media_player.dining_room_speaker
 #SYSTEM
-  - id: 7  # Automatically created id
-    title: System
-    icon: mdi:speedometer
-    panel: true
-    cards:
-      - type: vertical-stack
-        cards:
-          - type: horizontal-stack
-            cards:
-              - id: 0837c46780af43f585ac5dbed35a3566  # Automatically created id
-                type: sensor
-                name: Temp
-                entity: sensor.server_temp
-                icon: mdi:thermometer
-                hours_to_show: 48
-                accuracy: 20
-              - type: sensor
-                entity: sensor.memory_use_percent
-                name: Memory
-                hours_to_show: 48
-                accuracy: 20
-          - type: horizontal-stack
-            cards:
-              - type: sensor
-                entity: sensor.load_1m
-                icon: mdi:gobble
-                name: 1min
-                accuracy: 20
-              - type: sensor
-                entity: sensor.load_5m
-                icon: mdi:gobble
-                name: 5min Avg
-                accuracy: 20
-              - type: sensor
-                entity: sensor.load_15m
-                icon: mdi:gobble
-                name: 15min Avg
-                accuracy: 20
-          - type: horizontal-stack
-            cards:
-              - type: gauge
-                entity: sensor.disk_use_percent_
-                title: Main Drive
-                severity:
-                  green: 0
-                  yellow: 50
-                  red: 85
-              - type: gauge
-                entity: sensor.disk_use_percent_mediaworkhorse
-                title: Workhorse
-                severity:
-                  green: 0
-                  yellow: 50
-                  red: 85
-          - type: horizontal-stack
-            cards:
-               - type: gauge
-                 entity: sensor.disk_use_percent_mediamovies1
-                 title: Movies1
-                 severity:
-                   green: 0
-                   yellow: 90
-                   red: 97
-               - type: gauge
-                 entity: sensor.disk_use_percent_mediamovies2
-                 title: Movies2
-                 severity:
-                   green: 0
-                   yellow: 90
-                   red: 97
-          - type: horizontal-stack
-            cards:
-              - type: gauge
-                entity: sensor.disk_use_percent_mediashows1
-                title: Shows1
-                severity:
-                  green: 0
-                  yellow: 90
-                  red: 97
-              - type: gauge
-                entity: sensor.disk_use_percent_mediashows2
-                title: Shows2
-                severity:
-                  green: 0
-                  yellow: 90
-                  red: 97
+  #- id: 7  # Automatically created id
+    #title: System
+    #icon: mdi:speedometer
+    #panel: true
+    #cards:
+      #- type: iframe
+        #url: https://192.168.1.115:9090
+        #aspect_ratio: 100%
+      #- id: dc225049afc546b78b7bf7f32453bfe3  # Automatically created id
+        #type: vertical-stack
+        #cards:
+          #- type: horizontal-stack
+            #cards:
+              #- id: 0837c46780af43f585ac5dbed35a3566  # Automatically created id
+                #type: sensor
+                #name: Temp
+                #entity: sensor.server_temp
+                #icon: mdi:thermometer
+                #hours_to_show: 48
+                #accuracy: 20
+              #- type: sensor
+                #entity: sensor.memory_use_percent
+                #name: Memory
+                #hours_to_show: 48
+                #accuracy: 20
+          #- type: horizontal-stack
+            #cards:
+              #- type: sensor
+                #entity: sensor.load_1m
+                #icon: mdi:gobble
+                #name: 1min
+                #accuracy: 20
+              #- type: sensor
+                #entity: sensor.load_5m
+                #icon: mdi:gobble
+                #name: 5min Avg
+                #accuracy: 20
+              #- type: sensor
+                #entity: sensor.load_15m
+                #icon: mdi:gobble
+                #name: 15min Avg
+                #accuracy: 20
+          #- type: horizontal-stack
+            #cards:
+              #- type: gauge
+                #entity: sensor.disk_use_percent_
+                #title: Main Drive
+                #severity:
+                  #green: 0
+                  #yellow: 50
+                  #red: 85
+              #- type: gauge
+                #entity: sensor.disk_use_percent_mediaworkhorse
+                #title: Workhorse
+                #severity:
+                  #green: 0
+                  #yellow: 50
+                  #red: 85
+          #- type: horizontal-stack
+            #cards:
+              #- type: gauge
+                #entity: sensor.disk_use_percent_mediamovies1
+                #title: Movies1
+                #severity:
+                  #green: 0
+                  #yellow: 90
+                  #red: 97
+              #- type: gauge
+                #entity: sensor.disk_use_percent_mediamovies2
+                #title: Movies2
+                #severity:
+                  #green: 0
+                  #yellow: 90
+                  #red: 97
+          #- type: horizontal-stack
+            #cards:
+              #- type: gauge
+                #entity: sensor.disk_use_percent_mediashows1
+                #title: Shows1
+                #severity:
+                  #green: 0
+                  #yellow: 90
+                  #red: 97
+              #- type: gauge
+                #entity: sensor.disk_use_percent_mediashows2
+                #title: Shows2
+                #severity:
+                  #green: 0
+                  #yellow: 90
+                  #red: 97
 #BACKGROUND
-  - id: 8  # Automatically created id
+  - id: 7  # Automatically created id
     title: Background
     icon: mdi:settings
     cards:
+      - id: 4146d284910e4154af6acc0f048dc859  # Automatically created id
+        type: custom:migrate-card
       - id: 1e35e487350849ada23cbf8f073297f1  # Automatically created id
         type: custom:monster-card
         card:
@@ -666,3 +689,13 @@ views:
         filter:
           include:
             - domain: climate
+      - id: 068e0152b3b048088bad456ecb87ef0a  # Automatically created id
+        type: custom:monster-card
+        show_header_toggle: false
+        show_empty: false
+        card:
+          type: entities
+          title: Fans
+        filter:
+          include:
+            - domain: fan

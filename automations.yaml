@@ -1,3 +1,27 @@
+#Closet lights off
+  - alias: Turn off Closet Lights
+    trigger:
+      - platform: state
+        entity_id:
+          - light.sengled_e11g13_03116e79_1
+        to: 'on'
+        for: '00:10:00'
+      - platform: state
+        entity_id:
+          - light.kiddos_closet
+        to: 'on'
+        for: '00:10:00'
+      - platform: state
+        entity_id:
+          - light.linen_closet
+        to: 'on'
+        for: '00:10:00'
+    action:
+      - service: light.turn_off
+        data_template:
+          entity_id: "{{ trigger.entity_id }}"
+
+
 #Back Porch Motion
   - alias: Motion Snapshot Alert
     trigger:
@@ -145,6 +169,8 @@
       - service: mqtt.publish
         data:
           topic: "monitor/scan/restart"
+      - service: switch.turn_on
+        entity_id: switch.circadian_lighting_hallway, switch.circadian_lighting_household, switch.circadian_lighting_kiddo
       
 #THERMOSTAT COUNT
   - alias: Thermostat Count

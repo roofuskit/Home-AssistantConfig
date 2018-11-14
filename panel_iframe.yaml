@@ -1,4 +1,12 @@
+configurator:
+  title: 'Configurator'
+  url: 'http://192.168.1.115:3218/'
+  icon: mdi:wrench
 tasmoadmin:
   title: 'TasmoAdmin'
   url:  'http://192.168.1.115:9999'
   icon: mdi:home-automation
+cockpit:
+  title: 'Cockpit'
+  url: 'https://192.168.1.115:9090'
+  icon: mdi:memory

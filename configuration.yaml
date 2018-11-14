@@ -14,7 +14,7 @@ homeassistant:
   # Packages
   packages: !include_dir_named packages
   whitelist_external_dirs:
-    - /media/workhorse/camera
+    - /camera
   
   
 # Show links to resources in log and frontend
@@ -34,7 +34,7 @@ http:
 
 
 logger:
-  default: warn
+  default: info
   
 recorder:
   db_url: !secret db_url
@@ -44,7 +44,7 @@ recorder:
 #Zigbee Home Automation
 zha:
   usb_path: /dev/ttyUSB1
-  database_path: /home/xbmc/.homeassistant/zigbee.db
+  database_path: /config/zigbee.db
   
 #Z-Wave
 zwave:
@@ -192,24 +192,37 @@ weather:
 
 # SENSORS
 sensor:
-  - platform: systemmonitor
-    resources:
-      - type: disk_use_percent
-        arg: /media/movies1
-      - type: disk_use_percent
-        arg: /media/movies2
-      - type: disk_use_percent
-        arg: /media/shows1
-      - type: disk_use_percent
-        arg: /media/shows2
-      - type: disk_use_percent
-        arg: /
-      - type: disk_use_percent
-        arg: /media/workhorse
-      - type: load_1m
-      - type: load_5m
-      - type: load_15m
-      - type: memory_use_percent
+  #- platform: glances
+    #host: 192.168.1.115
+    #version: 3
+    #resources:
+      #- 'disk_use_percent'
+      #- 'memory_use_percent'
+      #- 'processor_load'
+      #- 'docker_active'
+      #- 'docker_cpu_use'
+      #- 'cpu_temp'
+      #- 'docker_memory_use'
+
+  #- platform: systemmonitor
+    #resources:
+      #- type: disk_use_percent
+        #arg: /media/movies1
+      #- type: disk_use_percent
+        #arg: /media/movies2
+      #- type: disk_use_percent
+        #arg: /media/shows1
+      #- type: disk_use_percent
+        #arg: /media/shows2
+      #- type: disk_use_percent
+        #arg: /
+      #- type: disk_use_percent
+        #arg: /media/workhorse
+      #- type: load_1m
+      #- type: load_5m
+      #- type: load_15m
+      #- type: memory_use_percent
+      
 ##BLUETOOTH
   - platform: mqtt
     state_topic: 'monitor/pi_rear/40:4e:36:5b:0e:d4'
@@ -325,10 +338,10 @@ sensor:
       - icon
       
 ##Server Temp
-  - platform: command_line
-    name: Server Temp
-    command: /usr/bin/sensors | grep "Core0" | cut -c16-19
-    unit_of_measurement: "°c"
+  #- platform: command_line
+    #name: Server Temp
+    #command: /usr/bin/sensors | grep "Core0" | cut -c16-19
+    #unit_of_measurement: "°c"
 
 ## Time and Date
   - platform: time_date
@@ -445,6 +458,12 @@ mqtt:
 
 # SWITCHES
 switch:
+
+  - platform: hadockermon
+    host: 192.168.1.115
+    port: 8126
+    stats: true
+    prefix: docker
 
   - platform: rest
     name: 'Mylar Pause/Unpause'
@@ -859,10 +878,10 @@ camera:
      still_image_url: http://192.168.1.159/picture/1/current/
      
 folder_watcher:
-  - folder: /media/workhorse/camera
+  - folder: /camera
     patterns:
       - '*.mp4'
-  
+
     
 group: !include groups.yaml
 automation: !include automations.yaml
