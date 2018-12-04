@@ -298,7 +298,7 @@ circadian_lighting:
 wake_on_lan:
 
 duckdns:
-  domain: roofuskit
+  domain: !secret duck_domain
   access_token: !secret duck_access
 
 #WEATHER
