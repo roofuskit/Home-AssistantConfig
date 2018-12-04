@@ -10,121 +10,158 @@
   stop_the_vacuum:
     alias: Stop the Vacuum
     sequence:
-      - service: vacuum.send_command
+      - service: vacuum.set_fan_speed
         data:
-          entity_id: vacuum.bobby
-          command: stop
-      - delay:
-          seconds: 10
+          fan_speed: 'Quiet'
       - service: vacuum.send_command
         data:
           entity_id: vacuum.bobby
           command: return_to_base
           
   vacuum_the_kitchen:
-    alias: Vacuum the Kitchen
+    alias: Kitchen Vacuum
     sequence:
-      - condition: state
-        entity_id: 'vacuum.bobby'
-        state: 'docked'
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
       - service: vacuum.send_command
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
           params: [[17800,18000,24950,21000,1],[21200,21000,24750,24000,1]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 'Max'
 
   vacuum_the_diningroom:
-    alias: Vacuum the Diningroom
+    alias: Dining Room Vacuum
     sequence:
-      - condition: state
-        entity_id: 'vacuum.bobby'
-        state: 'docked'
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
       - service: vacuum.send_command
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
           params: [[21400,24100,26000,33000,1]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 'Max'
           
   vacuum_the_livingroom:
-    alias: Vacuum the Livingroom
+    alias: Living Room Vacuum
     sequence:
-      - condition: state
-        entity_id: 'vacuum.bobby'
-        state: 'docked'
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
       - service: vacuum.send_command
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
-          params: [[18400,33300,24950,37000,1]]
+          params: [[18400,33300,24950,37200,1]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 'Max'
           
   vacuum_the_kiddosroom:
-    alias: Vacuum the Kiddos Room
+    alias: Kiddos Room Vacuum
     sequence:
-      - condition: state
-        entity_id: 'vacuum.bobby'
-        state: 'docked'
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
       - service: vacuum.send_command
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
           params: [[17800,22000,21100,27500,1]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 'Max'
           
   vacuum_the_masterbedroom:
-    alias: Vacuum the Master Bedroom
+    alias: Master Bedroom Vacuum
     sequence:
-      - condition: state
-        entity_id: 'vacuum.bobby'
-        state: 'docked'
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
       - service: vacuum.send_command
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
           params: [[17800,28400,20900,33000,1]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 'Max'
           
   vacuum_the_apartment:
-    alias: Vacuum the Apartment
+    alias: Apartment Vacuum
     sequence:
-      - condition: state
-        entity_id: 'vacuum.bobby'
-        state: 'docked'
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
       - service: vacuum.send_command
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
           params: [[17800,18000,24950,21000,1],[21200,21000,24750,24000,1],[21400,24100,26000,33000,1],[18400,33200,24950,36900,1]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 'Max'
+          
+  mop_the_kitchen:
+    alias: Kitchen Mop
+    sequence:
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[17800,18000,24950,21000,1],[21200,21000,24750,24000,2]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 105
+
+  mop_the_diningroom:
+    alias: Diningroom Mop
+    sequence:
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[21400,24100,26000,33000,2]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 105
+          
+  mop_the_livingroom:
+    alias: Livingroom Mop
+    sequence:
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[18400,33300,24950,37000,2]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 105
   
   time_for_bed:
     alias: Time for bed
     sequence:
-      - service: climate.turn_on
-        data_template:
-          entity_id: climate.bedroom_cool
-      - service: climate.turn_on
-        data_template:
-          entity_id: climate.kiddos_room_cool
-      - service: climate.turn_off
-        data_template:
-          entity_id: climate.kitchen_cool
-      - service: climate.turn_off
-        data_template:
-          entity_id: climate.livingroom_cool
       - service: homeassistant.turn_off
-        entity_id: automation.away
-      - service: homeassistant.turn_off
-        entity_id: automation.present
+        data_template:
+          entity_id: 
+            - light.master_bedroom_overhead
+            - switch.christmas_lights
+            - light.centralite_4257050zhac_02f7ac71_1
+            - automation.present
+            - automation.away
+            - fan.kitchen_fan
+            - fan.living_room_fan
+            - fan.spare_room_fan
+            - climate.livingroom_cool
+            - climate.kitchen_cool
+            - light.sengled_e11g13_0311d3f1_1
+      - service: homeassistant.turn_on
+        data_template:
+          entity_id: 
+            - light.bed_lamps
+            - climate.bedroom_cool
+            - climate.kiddos_room_cool
       - service: fan.set_speed
         data_template:
           entity_id: fan.master_bedroom_fan
           speed: 'medium'
-      - service: fan.turn_off
-        data_template:
-          entity_id: fan.kitchen_fan
-      - service: fan.turn_off
-        data_template:
-          entity_id: fan.living_room_fan
-      - service: fan.turn_off
-        data_template:
-          entity_id: fan.spare_room_fan
           
   kiddos_bedtime:
     alias: Kiddos Bedtime
@@ -140,11 +177,10 @@
           entity_id: light.kiddos_room
           color_temp: 454
       - delay:
-          seconds: 5
-      - service: light.turn_on
+          seconds: 2
+      - service: light.turn_off
         data_template:
           entity_id: light.kiddos_room
-          brightness: 1
           transition: 90
       - service: climate.turn_on
         data_template:
@@ -262,6 +298,30 @@
       - service: homeassistant.turn_off
         entity_id: input_boolean.asleep
           
+  kiddos_wakeup:
+    alias: "Kiddo's Wakeup"
+    sequence:
+      - service: switch.turn_on
+        entity_id: 
+         - light.centralite_4257050zhac_02f7ac71_1
+         - switch.christmas_lights
+      - service: light.turn_on
+        entity_id: light.kiddos_room
+        data:
+          brightness: 128
+          transition: 300
+      - service: homeassistant.turn_off
+        entity_id: 
+          - fan.kiddos_fan
+          - switch.kiddos_tree
+      - service: media_player.media_stop
+        entity_id: 
+          - media_player.googlehome9608
+      - delay: 0:10
+      - service: switch.turn_on
+        entity_id: 
+          - switch.circadian_lighting_kiddo
+        
   record_bedroom:
     alias: Record Bedroom Level
     sequence:
@@ -283,34 +343,28 @@
     sequence:
       - service: homeassistant.turn_off
         data:
-          entity_id: fan.kitchen_fan, fan.living_room_fan, fan.spare_room_fan
-      - service: light.turn_off
-        data:
-          entity_id: light.bed_lamps
-      - service: switch.turn_off
-        data:
-          entity_id: switch.kiddos_tree
-      - service: switch.turn_on
-        data:
-          entity_id: switch.zwave1
-      - service: climate.turn_on
-        data_template:
-          entity_id: climate.bedroom_cool
-      - service: climate.turn_on
-        data_template:
-          entity_id: climate.kiddos_room_cool
-      - service: climate.turn_off
-        data_template:
-          entity_id: climate.kitchen_cool
-      - service: climate.turn_off
-        data_template:
-          entity_id: climate.livingroom_cool
-      - service: homeassistant.turn_off
-        entity_id: automation.away
-      - service: homeassistant.turn_off
-        entity_id: automation.present
+          entity_id:
+            - fan.kitchen_fan
+            - fan.living_room_fan
+            - fan.spare_room_fan
+            - light.master_bedroom_overhead
+            - light.bed_lamps
+            - light.centralite_4257050zhac_02f7ac71_1
+            - switch.christmas_lights
+            - light.bed_lamps
+            - switch.kiddos_tree
+            - climate.kitchen_cool
+            - climate.livingroom_cool
+            - automation.away
+            - automation.present
+            - light.sengled_e11g13_0311d3f1_1
       - service: homeassistant.turn_on
-        entity_id: input_boolean.asleep
+        data:
+          entity_id: 
+            - switch.zwave1
+            - climate.bedroom_cool
+            - climate.kiddos_room_cool
+            - input_boolean.asleep
           
   cool_on:
     alias: Cool ON

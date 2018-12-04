@@ -87,8 +87,13 @@ views:
             name: Rear Smoke/CO
           - entity: binary_sensor.smoke_sensor_158d0001a93aed
             name: Front Smoke
+      - id: 93a9e4368e694012a69533800346cef1  # Automatically created id
+        type: glance
+        entities:
           - entity: binary_sensor.motion_sensor_158d0001e54198
             name: Front Hall
+          - entity: binary_sensor.bp_motion
+            name: Back Porch
       #BUTTONS
       - id: 03be55432270437d8e9d56fd2e1c37f3  # Automatically created id
         type: vertical-stack
@@ -102,38 +107,33 @@ views:
                 hold_action: more-info
               - type: entity-button
                 name: Back Porch
-                entity: light.yeelight_rgb_7811dc6b82a0
+                entity: light.yeelight_color2_7c49eb1bd3f4
                 tap_action: toggle
                 hold_action: more-info
           - type: horizontal-stack
             cards:
-              - type: entity-button
-                name: Household
-                entity: switch.circadian_lighting_household
-                tap_action: toggle
-                hold_action: more-info
-              - type: entity-button
-                name: Hall
-                entity: switch.circadian_lighting_hallway
-                tap_action: toggle
-                hold_action: more-info
+              #- type: entity-button
+                #name: Household
+                #entity: switch.circadian_lighting_household
+                #tap_action: toggle
+                #hold_action: more-info
+              #- type: entity-button
+                #name: Hall
+                #entity: switch.circadian_lighting_hallway
+                #tap_action: toggle
+                #hold_action: more-info
               - type: entity-button
                 name: Vacuum
-                entity: vacuum.bobby
+                icon: mdi:robot-vacuum
+                entity: script.vacuum_the_apartment
                 tap_action: call-service
-                hold_action: more-info
                 service: script.turn_on
-                service_data:
-                  entiy_id: script.vacuum_the_apartment
               - type: entity-button
+                icon: mdi:robot-vacuum
                 name: Stop
-                entity: vacuum.bobby
+                entity: script.stop_the_vacuum
                 tap_action: call-service
-                hold_action: more-info
                 service: script.turn_on
-                service_data:
-                  entiy_id: script.stop_the_vacuum
-
       - id: 238548bdf1024d2aa386199c6948bd69  # Automatically created id
         type: entities
         show_header_toggle: false
@@ -163,7 +163,14 @@ views:
                 entity: light.living_room_overhead
                 name: Overhead
                 tap_action: toggle
+              - type: entity-button
+                entity: light.centralite_4257050zhac_02f7ac71_1
+                icon: mdi:pine-tree
+                name: Tree
+                tap_action: toggle
                 hold_action: more-info
+          - type: horizontal-stack
+            cards:
               - type: entity-button
                 entity: light.sengled_e11g13_0310f119_1
                 name: Desk
@@ -177,12 +184,11 @@ views:
                 hold_action: more-info
               - type: entity-button
                 name: Vacuum
-                entity: vacuum.bobby
+                icon: mdi:robot-vacuum
+                entity: script.vacuum_the_livingroom
                 tap_action: call-service
                 hold_action: more-info
                 service: script.turn_on
-                service_data:
-                  entiy_id: script.vacuum_the_livingroom
       - id: ffeae1a9371e420e9d8336355ccaa0e9  # Automatically created id
         type: glance
         columns: 4
@@ -219,23 +225,35 @@ views:
           - type: horizontal-stack
             cards:
               - type: entity-button
-                entity: switch.zwave2
-                icon: mdi:coffee
-                tap_action: toggle
-                hold_action: more-info
-              - type: entity-button
                 name: Overhead
                 entity: light.kitchen_overhead
                 tap_action: toggle
                 hold_action: more-info
               - type: entity-button
+                name: Sink
+                entity: light.yeelight_strip_7811dc690b4d
+                icon: mdi:led-strip
+                tap_action: toggle
+                hold_action: more-info
+              - type: entity-button
+                name: Stove
+                entity: light.yeelight_rgb_7811dc6b82a0
+                tap_action: toggle
+                hold_action: more-info
+          - type: horizontal-stack
+            cards:
+              - type: entity-button
+                entity: switch.zwave2
+                icon: mdi:coffee
+                tap_action: toggle
+                hold_action: more-info
+              - type: entity-button
                 name: Vacuum
-                entity: vacuum.bobby
+                entity: script.vacuum_the_kitchen
+                icon: mdi:robot-vacuum
                 tap_action: call-service
                 hold_action: more-info
                 service: script.turn_on
-                service_data:
-                  entiy_id: script.vacuum_the_kitchen
           - type: horizontal-stack
             cards:
               - type: entity-button
@@ -311,12 +329,11 @@ views:
                 hold_action: more-info
               - type: entity-button
                 name: Vacuum
-                entity: vacuum.bobby
+                entity: script.vacuum_the_masterbedroom
+                icon: mdi:robot-vacuum
                 tap_action: call-service
                 hold_action: more-info
                 service: script.turn_on
-                service_data:
-                  entiy_id: script.vacuum_the_master_bedroom
           - type: horizontal-stack
             cards:
               - type: entity-button
@@ -368,13 +385,13 @@ views:
       - id: 598e794c3f954a0aa7d3603672a0218d  # Automatically created id
         type: media-control
         entity: media_player.googlehome0173
-      - id: d63da92adb604f5f9703c1d5dd5068b6  # Automatically created id
-        type: entities
-        title: Alarm Clock
-        show_header_toggle: false
-        entities:
-          - sensor.alarm_clock_time
-          - group.alarm_clock
+      #- id: d63da92adb604f5f9703c1d5dd5068b6  # Automatically created id
+        #type: entities
+        #title: Alarm Clock
+        #show_header_toggle: false
+        #entities:
+          #- sensor.alarm_clock_time
+          #- group.alarm_clock
       - id: 6c1a1a4171fb4b0190fa30d900990398  # Automatically created id
         type: entities
         title: Alarm Clock Weekend
@@ -407,31 +424,31 @@ views:
                 icon: mdi:pine-tree
                 tap_action: toggle
                 hold_action: more-info
+
+          - type: horizontal-stack
+            cards:
               - type: entity-button
                 entity: fan.kiddos_fan
                 name: Fan
                 tap_action: toggle
                 hold_action: more-info
-          - type: horizontal-stack
-            cards:
               - type: entity-button
                 entity: light.kiddos_closet
                 name: Closet
                 tap_action: toggle
                 hold_action: more-info
-              - type: entity-button
-                entity: switch.circadian_lighting_kiddo
-                name: Circadian
-                tap_action: toggle
-                hold_action: more-info
+              #- type: entity-button
+                #entity: switch.circadian_lighting_kiddo
+                #name: Circadian
+                #tap_action: toggle
+                #hold_action: more-info
               - type: entity-button
                 name: Vacuum
-                entity: vacuum.bobby
+                entity: script.vacuum_the_kiddosroom
+                icon: mdi:robot-vacuum
                 tap_action: call-service
                 hold_action: more-info
                 service: script.turn_on
-                service_data:
-                  entiy_id: script.vacuum_the_kiddos_room
       - id: b7c32ee9b3064846b1793986705643f6  # Automatically created id
         type: media-control
         entity: media_player.googlehome9608
@@ -486,18 +503,23 @@ views:
           - type: horizontal-stack
             cards:
               - type: entity-button
-                entity: light.dining_room
+                entity: light.dining_room_overhead
                 name: Overhead
                 tap_action: toggle
                 hold_action: more-info
               - type: entity-button
                 name: Vacuum
-                entity: vacuum.bobby
+                entity: script.vacuum_the_diningroom
+                icon: mdi:robot-vacuum
                 tap_action: call-service
                 hold_action: more-info
                 service: script.turn_on
-                service_data:
-                  entiy_id: script.vacuum_the_diningroom
+              - type: entity-button
+                entity: switch.christmas_lights
+                icon: mdi:led-strip
+                name: X-Mas
+                tap_action: toggle
+                hold_action: more-info
       - id: 69f47e9faa794e76aef6f8e213cdf80b  # Automatically created id
         type: media-control
         entity: media_player.dining_room_speaker

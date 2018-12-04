@@ -1,3 +1,38 @@
+#Under cabinet lights
+  - alias: "Under Cabinet"
+    trigger:
+      - platform: event
+        event_type: xiaomi_aqara.motion
+        event_data:
+          entity_id: binary_sensor.motion_sensor_158d00022368ec
+    action:
+      - service: light.turn_on
+        data:
+          entity_id: 
+            - light.yeelight_strip_7811dc690b4d
+            - light.yeelight_rgb_7811dc6b82a0
+          transition: 2
+        
+#Vacuum Notifications
+  - alias: Vacuum Updates
+    trigger:
+      - platform: state
+        entity_id: 
+          - vacuum.bobby
+        to: 'docked'
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: device_tracker.kevin
+          state: 'home'
+        - condition: state
+          entity_id: input_boolean.asleep
+          state: 'off'    
+    action:
+      - service: notify.kevin_telegram
+        data:        
+          message: "Bobby has finished"
 #Closet lights off
   - alias: Turn off Closet Lights
     trigger:
@@ -25,8 +60,10 @@
 #Back Porch Motion
   - alias: Motion Snapshot Alert
     trigger:
-      - platform: webhook
-        webhook_id: !secret motioneye_motion
+      - platform: state
+        entity_id: 
+          - input_boolean.bp_motion
+        to: 'on'
     condition:
       condition: or
       conditions:
@@ -61,17 +98,34 @@
           entity_id: input_boolean.asleep
           state: 'on'
     action:
-      #don't try to upload the file before it finishes uploading to the server.
-    - delay: 00:00:15
-    - service: notify.kevin_telegram
-      data_template:
-        title: "Motion Event"
-        message: "Created {{ trigger.event.data.file }} in {{ trigger.event.data.folder }}"
-        data:
-          video:
-            - file: "{{ trigger.event.data.path }}"
-              caption: "{{ trigger.event.data.file }}"
+        #don't try to upload the file before it finishes uploading to the server.
+      - delay: 00:00:45
+      - service: notify.kevin_telegram
+        data_template:
+          title: "Motion Event"
+          message: "Created {{ trigger.event.data.file }} in {{ trigger.event.data.folder }}"
+          data:
+            video:
+              - file: "{{ trigger.event.data.path }}"
+                caption: "{{ trigger.event.data.file }}"
 
+  - alias: Motion Started
+    trigger:
+      - platform: webhook
+        webhook_id: !secret motioneye_detected
+    action:
+      - service: homeassistant.turn_on
+        entity_id: input_boolean.bp_motion
+              
+  - alias: Motion Stopped
+    trigger:
+      - platform: event
+        event_type: folder_watcher
+        event_data:
+          event_type: created
+    action:
+      - service: homeassistant.turn_off
+        entity_id: input_boolean.bp_motion
 
 #Mylar and headphones
   - alias: downloads
@@ -98,6 +152,7 @@
     trigger:
       #- platform: template
         #value_template: "{{ states.sensor.humidity_158d00023761ee.state | float >= 70 }}"
+      #Using a trend sensor is more reliable because your start and end values will not be fixed through all seasons.
        - platform: state
          entity_id: binary_sensor.showering
          to: 'on'
@@ -116,8 +171,22 @@
     action:
       - service: homeassistant.turn_off
         entity_id: fan.bathroom_fan
-        
-        
+
+  - alias: "Bathroom Volume"
+    trigger:
+      - platform: state
+        entity_id: fan.bathroom_fan
+    action:
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.bathroom_speaker
+          volume_level: >
+              {% if is_state('fan.bathroom_fan', 'on') %}
+                0.8
+              {% else %}
+                0.45
+              {% endif %}
+    
 #Kitchen Fan
   - id: kitchen_fan_automation
     alias: 'Kitchen Fan Automation'
@@ -155,7 +224,11 @@
         to: 'off'
     action: 
       - service: homeassistant.turn_off
-        entity_id: fan.kitchen_fan, light.kitchen_overhead
+        entity_id: 
+          - fan.kitchen_fan
+          - light.kitchen_overhead
+          - light.yeelight_strip_7811dc690b4d
+          - light.yeelight_rgb_7811dc6b82a0
 
 #STARTUP
   - alias: Startup
@@ -170,7 +243,15 @@
         data:
           topic: "monitor/scan/restart"
       - service: switch.turn_on
-        entity_id: switch.circadian_lighting_hallway, switch.circadian_lighting_household, switch.circadian_lighting_kiddo
+        entity_id: 
+          - switch.circadian_lighting_hallway
+          - switch.circadian_lighting_household
+          - switch.circadian_lighting_kiddo
+          - switch.circadian_lighting_christmas_tree
+      - service: mqtt.publish
+        data:
+          topic: "cmnd/sonoffs/state"
+          payload: "" 
       
 #THERMOSTAT COUNT
   - alias: Thermostat Count
@@ -250,7 +331,7 @@
   - alias: "Back Door Arrive"
     trigger:
       - platform: state
-        entity_id: binary_sensor.door_window_sensor_158d0002059b3e
+        entity_id: binary_sensor.motion_sensor_158d00022ec4b7
         to: 'on'    
     action:
       service: mqtt.publish
@@ -268,35 +349,51 @@
         topic: monitor/scan/depart
 
 #Master Bedroom Button
-  - alias: "Master Bedroom Button"
+  - alias: "Master Bedroom Button 1"
     trigger:
-      - platform: event
-        event_type: click
-        event_data:
-          entity_id: binary_sensor.switch_158d0001bf209d
-          click_type: single
-      - platform: event
-        event_type: click
-        event_data:
-          entity_id: binary_sensor.switch_158d0001bf209d
-          click_type: double
+      #- platform: event
+        #event_type: xiaomi_aqara.click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001bf209d
+          #click_type: single
+      #- platform: event
+        #event_type: xiaomi_aqara.click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001bf209d
+          #click_type: double
+      - platform: mqtt
+        topic: home/OpenMQTTGateway/433toMQTT
+        payload: '80033'
     action:
       - service: light.toggle
         entity_id: light.master_bedroom_overhead
         
+  - alias: "Master Bedroom Button 2"
+    trigger:
+      - platform: mqtt
+        topic: home/OpenMQTTGateway/433toMQTT
+        payload: '80036'
+    action:
+      - service: light.toggle
+        entity_id: light.bed_lamps
+        
 #Kitchen Button
   - alias: "Kitchen Button"
     trigger:
+      #- platform: event
+        #event_type: xiaomi_aqara.click
+        #event_data:
+          #entity_id: binary_sensor.switch_158d0001d8dbad
+          #click_type: single
+      - platform: mqtt
+        topic: home/OpenMQTTGateway/433toMQTT
+        payload: '8404930'
       - platform: event
-        event_type: click
-        event_data:
-          entity_id: binary_sensor.switch_158d0001d8dbad
-          click_type: single
-      - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d0001d8dbad
           click_type: double
+          
     action:
       - service: light.toggle
         entity_id: light.kitchen_overhead
@@ -374,7 +471,10 @@
       to: 'on'
     action:
       - service: light.turn_on
-        entity_id: light.kiddos_closet
+        data:
+          entity_id: light.kiddos_closet
+          transition: 2
+          
   - alias: "Kiddo's Closet Door Closed"
     trigger:
       platform: state
@@ -382,7 +482,9 @@
       to: 'off'
     action:
       - service: light.turn_off
-        entity_id: light.kiddos_closet
+        data:
+          entity_id: light.kiddos_closet
+          transition: 2
         
 ## Master Closet
   - alias: "Master Closet Door Open"
@@ -392,7 +494,9 @@
       to: 'on'
     action:
       - service: light.turn_on
-        entity_id: light.sengled_e11g13_03116e79_1
+        data:
+          entity_id: light.sengled_e11g13_03116e79_1
+          transition: 2
   - alias: "Master Closet Door Closed"
     trigger:
       platform: state
@@ -400,7 +504,9 @@
       to: 'off'
     action:
       - service: light.turn_off
-        entity_id: light.sengled_e11g13_03116e79_1
+        data:
+          entity_id: light.sengled_e11g13_03116e79_1
+          transition: 2
         
 ## Linen Closet
   - alias: "Linen Closet Door Open"
@@ -410,7 +516,9 @@
       to: 'on'
     action:
       - service: light.turn_on
-        entity_id: light.linen_closet
+        data:
+          entity_id: light.linen_closet
+          transition: 2
   - alias: "Linen Closet Door Closed"
     trigger:
       platform: state
@@ -418,14 +526,16 @@
       to: 'off'
     action:
       - service: light.turn_off
-        entity_id: light.linen_closet
+        data:
+          entity_id: light.linen_closet
+          transition: 2
         
 #Motion Sensors
 ##Hallway
   - alias: "Hallway Light on"
     trigger:
       - platform: event
-        event_type: motion
+        event_type: xiaomi_aqara.motion
         event_data:
           entity_id: binary_sensor.motion_sensor_158d0001e54198
     condition:
@@ -435,7 +545,9 @@
       below: 1
     action:
       service: light.turn_on
-      entity_id: light.sengled_e11g13_0311d3f1_1
+      data:
+        entity_id: light.sengled_e11g13_0311d3f1_1
+        transition: 2
 
   - alias: "Hallway Light off"
     trigger:
@@ -446,15 +558,16 @@
         seconds: 05
     action:
       service: light.turn_off
-      entity_id: light.sengled_e11g13_0311d3f1_1
+      data:
+        entity_id: light.sengled_e11g13_0311d3f1_1
+        transition: 2
       
 ##Back Porch Light
   - alias: "BP Light on"
     trigger:
-      - platform: event
-        event_type: motion
-        event_data:
-          entity_id: binary_sensor.motion_sensor_158d00022ec4b7
+      - platform: state
+        entity_id: binary_sensor.bp_motion
+        to: 'on'
       - platform: state
         entity_id: binary_sensor.door_window_sensor_158d0001b146a1
         to: 'on'
@@ -468,74 +581,75 @@
         below: 1
     action:
       service: light.turn_on
-      entity_id: light.yeelight_rgb_7811dc6b82a0
+      entity_id: light.yeelight_color2_7c49eb1bd3f4
       data:
         brightness: 255
+        transition: 2
         #rgb_color: 255,178,115
 
   - alias: "BP Light Off"
     trigger:
       - platform: state
-        entity_id: binary_sensor.motion_sensor_158d00022ec4b7
+        entity_id: binary_sensor.bp_motion
         to: 'off'
         for:
-          minutes: 03
+          minutes: 04
     action:
       service: light.turn_off
-      entity_id: light.yeelight_rgb_7811dc6b82a0
+      entity_id: light.yeelight_color2_7c49eb1bd3f4
       data:
         transition: 30
       
 ##Back Porch Alarm
-  - alias: "BP Alarm on"
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.door_window_sensor_158d0001b146a1
-        to: 'on'
-    condition:
-      condition: or
-      conditions:
-        - condition: state
-          entity_id: group.all_devices
-          state: 'not_home'
-        - condition: state
-          entity_id: input_boolean.asleep
-          state: 'on'
-    action:
-      - service: media_player.play_media
-        data:
-          entity_id: media_player.dining_room_speaker
-          media_content_id: http://192.168.1.115:8123/local/audio/dog_bark.mp3
-          media_content_type: 'music'  
-      - service: media_player.volume_set
-        data_template:
-          entity_id: media_player.dining_room_speaker
-          volume_level: 1.0
-      - service: light.turn_on
-        entity_id: light.yeelight_rgb_7811dc6b82a0
-        data:
-          effect: "Police"
-      - service: light.turn_on
-        entity_id: light.kitchen_overhead  
-      #- service: xiaomi_aqara.play_ringtone
+  #- alias: "BP Alarm on"
+    #trigger:
+      #- platform: state
+        #entity_id: binary_sensor.bp_motion
+        #to: 'on'
+    #condition:
+      #condition: or
+      #conditions:
+        #- condition: state
+          #entity_id: group.all_devices
+          #state: 'not_home'
+        #- condition: state
+          #entity_id: input_boolean.asleep
+          #state: 'on'
+    #action:
+      #- service: media_player.play_media
+        #data:
+          #entity_id: media_player.dining_room_speaker
+          #media_content_id: http://192.168.1.115:8123/local/audio/dog_bark.mp3
+          #media_content_type: 'music'  
+      #- service: media_player.volume_set
+        #data_template:
+          #entity_id: media_player.dining_room_speaker
+          #volume_level: 1.0
+      #- service: light.turn_on
+        #entity_id: light.yeelight_color2_7c49eb1bd3f4
+        #data:
+          #effect: "Police"
+      #- service: light.turn_on
+        #entity_id: light.kitchen_overhead  
+      ##- service: xiaomi_aqara.play_ringtone
+        ##data:
+          ##gw_mac: 7811DCB05F07
+          ##ringtone_id: 8
+          ##ringtone_vol: 100
+
+  #- alias: "BP Alarm Off"
+    #trigger:
+      #- platform: state
+        #entity_id: binary_sensor.bp_motion
+        #to: 'off'
+        #for:
+          #minutes: 01
+    #action:
+      #- service: switch.turn_off
+        #entity_id: switch.back_porch_state
+      #- service: xiaomi_aqara.stop_ringtone
         #data:
           #gw_mac: 7811DCB05F07
-          #ringtone_id: 8
-          #ringtone_vol: 100
-
-  - alias: "BP Alarm Off"
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.motion_sensor_158d00022ec4b7
-        to: 'off'
-        for:
-          minutes: 01
-    action:
-      - service: switch.turn_off
-        entity_id: switch.back_porch_state
-      - service: xiaomi_aqara.stop_ringtone
-        data:
-          gw_mac: 7811DCB05F07
         
 #Teapot Timer
   - alias: "Teapot Timer"
@@ -553,7 +667,7 @@
   - alias: "Ashley's Button Lamp"
     trigger:
       - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d00016d8d5d
           click_type: single
@@ -564,7 +678,7 @@
   - alias: "Ashley's Button Filter"
     trigger:
       - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d00016d8d5d
           click_type: double
@@ -576,7 +690,7 @@
   - alias: "Kevin's Button Lamp"
     trigger:
       - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d000213522e
           click_type: single
@@ -587,7 +701,7 @@
   - alias: "Kevin's Button Filter"
     trigger:
       - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d000213522e
           click_type: double
@@ -596,26 +710,26 @@
         entity_id: switch.zwave1
 
 #Wake up lights   
-  - alias: "Wake up"
-    trigger:
-      platform: template
-      value_template: '{{ states.sensor.time.state == states.sensor.alarm_clock_time_long.state }}'
-    condition:
-      condition: and
-      conditions:
-        - condition: time
-          weekday:
-            - mon
-            - tue
-            - wed
-            - thu
-            - fri
-        - condition: state
-          entity_id: input_boolean.alarm_clock_status
-          state: 'on'
-    action:
-      service: script.turn_on
-      entity_id: script.wakeup
+  #- alias: "Wake up"
+    #trigger:
+      #platform: template
+      #value_template: '{{ states.sensor.time.state == states.sensor.alarm_clock_time_long.state }}'
+    #condition:
+      #condition: and
+      #conditions:
+        #- condition: time
+          #weekday:
+            #- mon
+            #- tue
+            #- wed
+            #- thu
+            #- fri
+        #- condition: state
+          #entity_id: input_boolean.alarm_clock_status
+          #state: 'on'
+    #action:
+      #service: script.turn_on
+      #entity_id: script.wakeup
       
       
 #Wake up weekend
@@ -643,6 +757,10 @@
       platform: event
       event_type: alarm_3_event
     action:
+      - service: homeassistant.turn_on
+        entity_id: 
+         - light.centralite_4257050zhac_02f7ac71_1
+         - switch.christmas_lights
       - service: light.turn_on
         entity_id: light.kiddos_room
         data:
@@ -650,6 +768,8 @@
           transition: 300
       - service: homeassistant.turn_off
         entity_id: fan.kiddos_fan, switch.kiddos_tree
+      - service: media_player.media_stop
+        entity_id: media_player.googlehome9608
       - delay: 0:10
       - service: switch.turn_on
         entity_id: switch.circadian_lighting_kiddo
@@ -680,6 +800,15 @@
         data_template:
           entity_id: input_number.stored_cooling_target 
           value: '{{ states.input_number.present_cooling_target.state | int }}'
+      - service: homeassistant.turn_on
+        data:
+          entity_id:
+            - light.centralite_4257050zhac_02f7ac71_1
+            - switch.christmas_lights
+            - switch.circadian_lighting_hallway
+            - switch.circadian_lighting_household
+            - switch.circadian_lighting_kiddo
+            - switch.circadian_lighting_christmas_tree
 
 ## AWAY  
   - alias: "Away"
@@ -906,14 +1035,13 @@
             {%- endfor %}
             {% endmacro %}
             {{ battery_level() }}
-      - service: notify.slack_notify
+      - service: notify.kevin_telegram
         data_template:
           message: "Low Battery Levels"
           data:
             attachments:
-            - color: '#52c0f2'
-              title: "These devices have low battery levels"
-              text: >
+            - title: "These devices have low battery levels"
+              message: >
                 {% macro battery_level() %}
                 {%- set threshold = 20 -%}
                 {% set domains = ['light', 'switch', 'sensor', 'zwave', 'lock'] %}
@@ -958,21 +1086,21 @@
   - alias: "Vanity Button"
     trigger:
       - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d00022389fd
           click_type: single
     action:
       - service: light.toggle
-        entity_id: light.vanity_lights
-      - service: light.toggle
-        entity_id: light.bathroom_overhead
+        data:
+          entity_id: light.bathroom_lights
+          transition: 2
         
 ##Vanity Button
   #- alias: "Vanity Button"
     #trigger:
       #- platform: event
-        #event_type: click
+        #event_type: xiaomi_aqara.click
         #event_data:
           #entity_id: binary_sensor.switch_158d00022389fd
           #click_type: double
@@ -986,13 +1114,15 @@
   - alias: "Desk Lamp Button"
     trigger:
       - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d00021364d9
           click_type: single
     action:
       - service: light.toggle
-        entity_id: light.sengled_e11g13_0310f119_1
+        data:
+          entity_id: light.sengled_e11g13_0310f119_1
+          transition: 2
 
 #LOG LEVEL
   - alias: Log Level
@@ -1009,7 +1139,7 @@
     #initial_state: 'on'
     #trigger:
       #- platform: event
-        #event_type: click
+        #event_type: xiaomi_aqara.click
         #event_data:
           #entity_id: binary_sensor.switch_158d0001be66dc
           #click_type: long_click_press
@@ -1052,7 +1182,7 @@
     #initial_state: 'on'
     #trigger:
       #- platform: event
-        #event_type: click
+        #event_type: xiaomi_aqara.click
         #event_data:
           #entity_id: binary_sensor.switch_158d0001be66dc
           #click_type: long_click_press
@@ -1094,19 +1224,21 @@
   - alias: "Living Room Button"
     trigger:
       - platform: event
-        event_type: click
+        event_type: xiaomi_aqara.click
         event_data:
           entity_id: binary_sensor.switch_158d0001be66dc
           click_type: single
     action:
       - service: light.toggle
-        entity_id: light.living_room_overhead
+        data:
+          entity_id: light.living_room_overhead
+          transition: 2
 
 ##Living Room Double Dim
   #- alias: "Living Room 2%"
     #trigger:
       #- platform: event
-        #event_type: click
+        #event_type: xiaomi_aqara.click
         #event_data:
           #entity_id: binary_sensor.switch_158d0001be66dc
           #click_type: double
@@ -1129,7 +1261,7 @@
   #- alias: "Living Room 50%"
     #trigger:
       #- platform: event
-        #event_type: click
+        #event_type: xiaomi_aqara.click
         #event_data:
           #entity_id: binary_sensor.switch_158d0001be66dc
           #click_type: double
@@ -1148,7 +1280,7 @@
   #- alias: "Living Room 100%"
     #trigger:
       #- platform: event
-        #event_type: click
+        #event_type: xiaomi_aqara.click
         #event_data:
           #entity_id: binary_sensor.switch_158d0001be66dc
           #click_type: double
