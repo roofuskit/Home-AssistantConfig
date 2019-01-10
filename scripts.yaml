@@ -1,3 +1,112 @@
+#Christmas time
+  christmas_time:
+    alias: Christmas Time
+    sequence: 
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.all_speakers_2
+          volume_level: 0.30
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.shield
+          media_content_id: http://192.168.1.115:8123/local/audio/fireplace.mp4
+          media_content_type: 'video'  
+      - service: homeassistant.turn_on
+        entity_id: 
+          - light.centralite_4257050zhac_02f7ac71_1
+          - switch.christmas_lights
+      - delay: 00:00:02
+      - service: cover.open_cover
+        entity_id: 
+          - cover.curtain_158d0002afa728
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.all_speakers_2
+          volume_level: 0.30
+          
+##Back Porch Alarm
+  alarm_start:
+    alias: Alarm Start
+    sequence: 
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.all_speakers_2
+          volume_level: 1.0
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.all_speakers_2
+          media_content_id: http://192.168.1.115:8123/local/audio/alarm.mp3
+          media_content_type: 'music'  
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.all_speakers_2
+          volume_level: 1.0
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.shield
+          media_content_id: http://192.168.1.115:8123/local/audio/policelights.mp4
+          media_content_type: 'video'  
+      - service: light.turn_on
+        entity_id: 
+          - light.yeelight_color2_7c49eb1bd3f4
+          - light.yeelight_rgb_7811dc6b82a0
+          - light.yeelight_strip_7811dc66df5f
+          - light.yeelight_strip_7811dc690b4d
+        data:
+          effect: "Police"
+      - delay: 00:00:02
+      - service: cover.open_cover
+        entity_id: 
+          - cover.curtain_158d0002afa728
+          
+  alarm_stop:
+    alias: Alarm Stop
+    sequence: 
+      - service: media_player.media_stop
+        data:
+          entity_id: 
+            - media_player.all_speakers_2
+            - media_player.shield
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.all_speakers_2
+          volume_level: 0.5
+      - service: light.turn_on
+        entity_id: 
+          - light.yeelight_color2_7c49eb1bd3f4
+          - light.yeelight_rgb_7811dc6b82a0
+          - light.yeelight_strip_7811dc66df5f
+          - light.yeelight_strip_7811dc690b4d
+        data:
+          effect: "Stop"
+      - service: light.turn_off
+        entity_id: 
+          - light.yeelight_color2_7c49eb1bd3f4
+          - light.yeelight_rgb_7811dc6b82a0
+          - light.yeelight_strip_7811dc66df5f
+          - light.yeelight_strip_7811dc690b4d
+      #- service: xiaomi_aqara.play_ringtone
+        #data:
+          #gw_mac: 7811DCB05F07
+          #ringtone_id: 8
+          #ringtone_vol: 100
+
+  show_time:
+    alias: Show Time
+    sequence:
+      - service: cover.close_cover
+        data:
+          entity_id:
+            - cover.curtain_158d0002afa728
+            
+  shows_over:
+    alias: Show's Over
+    sequence:
+      - service: cover.open_cover
+        data:
+          entity_id:
+            - cover.curtain_158d0002afa728
+
   back_porch_camera:
     alias: Back Porch Camera
     sequence:
@@ -39,7 +148,7 @@
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
-          params: [[21400,24100,26000,33000,1]]
+          params: [[21400,24200,26000,33200,1]]
       - service: vacuum.set_fan_speed
         data:
           fan_speed: 'Max'
@@ -52,7 +161,7 @@
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
-          params: [[18400,33300,24950,37200,1]]
+          params: [[18500,33500,25050,37500,1]]
       - service: vacuum.set_fan_speed
         data:
           fan_speed: 'Max'
@@ -65,7 +174,7 @@
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
-          params: [[17800,22000,21100,27500,1]]
+          params: [[17800,22000,21100,27700,1]]
       - service: vacuum.set_fan_speed
         data:
           fan_speed: 'Max'
@@ -117,7 +226,7 @@
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
-          params: [[21400,24100,26000,33000,2]]
+          params: [[21400,24200,26000,33200,2]]
       - service: vacuum.set_fan_speed
         data:
           fan_speed: 105
@@ -130,7 +239,20 @@
         data:
           entity_id: vacuum.bobby
           command: app_zoned_clean
-          params: [[18400,33300,24950,37000,2]]
+          params: [[18500,33500,25050,37500,2]]
+      - service: vacuum.set_fan_speed
+        data:
+          fan_speed: 105
+          
+  mop_the_kiddosroom:
+    alias: Kiddo's Room Mop
+    sequence:
+      - wait_template: "{{ is_state('vacuum.bobby', 'docked') }}"
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.bobby
+          command: app_zoned_clean
+          params: [[17800,22000,21100,27700,2]]
       - service: vacuum.set_fan_speed
         data:
           fan_speed: 105
@@ -174,13 +296,13 @@
         entity_id: fan.kiddos_fan
       - service: light.turn_on
         data_template:
-          entity_id: light.kiddos_room
+          entity_id: light.kiddos_overhead
           color_temp: 454
       - delay:
           seconds: 2
       - service: light.turn_off
         data_template:
-          entity_id: light.kiddos_room
+          entity_id: light.kiddos_overhead
           transition: 90
       - service: climate.turn_on
         data_template:
@@ -301,12 +423,12 @@
   kiddos_wakeup:
     alias: "Kiddo's Wakeup"
     sequence:
-      - service: switch.turn_on
+      - service: homeassistant.turn_on
         entity_id: 
          - light.centralite_4257050zhac_02f7ac71_1
          - switch.christmas_lights
       - service: light.turn_on
-        entity_id: light.kiddos_room
+        entity_id: light.kiddos_overhead
         data:
           brightness: 128
           transition: 300

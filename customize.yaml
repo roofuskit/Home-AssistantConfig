@@ -52,7 +52,7 @@ input_boolean.alarm_clock_wknd_status:
 binary_sensor.switch_158d00016d8d5d:
   friendly_name: Ashleys Button
 binary_sensor.door_window_sensor_158d0001dbd4cc:
-  friendly_name: Kiddos Closet Door
+  friendly_name: Kiddo's Closet Door
   device_class: opening
 binary_sensor.door_window_sensor_158d0001ab3db4:
   friendly_name: Master Closet Door
@@ -171,6 +171,10 @@ light.yeelight_strip_7811dc690b4d:
   max_mireds: 290
 light.yeelight_rgb_7811dc6b82a0:
   friendly_name: Stove
+  min_mireds: 153
+  max_mireds: 290
+light.yeelight_strip_7811dc66df5f:
+  friendly_name: Kiddo's Desk
   min_mireds: 153
   max_mireds: 290
 light.dining_room_1_3:

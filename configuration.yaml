@@ -114,13 +114,14 @@ zwave:
 google_assistant:
   project_id: !secret google_project
   api_key: !secret google_api
-  expose_by_default: false
+  #expose_by_default: false
   exposed_domains:
     - switch
     - light
     - scene
     - fan
     - climate
+    - cover
   entity_config:
     climate.bedroom_cool:
       name: Bedroom Thermostat
@@ -163,6 +164,8 @@ google_assistant:
     script.wakeup:
       expose: true
     script.kiddos_wakeup:
+      expose: true
+    script.christmas_time:
       expose: true
     switch.bedroom_cooling:
       expose: false
@@ -266,6 +269,52 @@ history:
       - light.bedroom_w 
       - light.diningroom_1_2
       - light.diningroom_2_2
+      - input_boolean.bp_motion
+      - light.vanity_lights
+      - light.bathroom_overhead
+      - light.gateway_light_7811dc6c910e
+      - light.gateway_light_7811dcb05f07
+      - light.sengled_e11g13_030e229b_1
+      - light.sengled_e11g13_030e8f56_1
+      - sensor.sengled_e11g13_0302ac4d_1_1794
+      - sensor.sengled_e11g13_030e229b_1_1794
+      - sensor.sengled_e11g13_030e8f56_1_1794
+      - sensor.sengled_e11g13_030e8f56_1_1794
+      - sensor.sengled_e11g13_030e925f_1_1794
+      - sensor.sengled_e11g13_0310f119_1_1794
+      - sensor.sengled_e11g13_03114527_1_1794
+      - sensor.sengled_e11g13_03116e79_1_1794
+      - sensor.sengled_e11g13_03117d0a_1_1794
+      - sensor.sengled_e11g13_0311b21d_1_1794
+      - sensor.sengled_e11g13_0311d3f1_1_1794
+      - sensor.sengled_e11g13_0311dca3_1_1794
+      - sensor.alarm_clock_wknd_time
+      - sensor.alarm_3_time
+      - sensor.thermostat_indicator
+      - sensor.circadian_values
+      - switch.circadian_lighting_christmas_tree_circadian
+      - switch.circadian_lighting_hallway
+      - switch.circadian_lighting_household
+      - switch.circadian_lighting_kiddo
+      - sensor.cooling_target
+      - input_number.away_cooling_target
+      - input_number.away_heating_target
+      - input_number.present_cooling_target
+      - input_number.present_heating_target
+      - input_number.sleeping_cooling_target
+      - input_number.stored_cooling_target
+      - input_number.stored_heating_target
+      - sensor.cooling_target
+      - sensor.bt_ashley
+      - sensor.bt_ashley_front
+      - sensor.bt_ashley_rear
+      - sensor.bt_kevin
+      - sensor.bt_kevin_front
+      - sensor.bt_kevin_rear
+      - sensor.dining_room_remote
+      - sensor.kiddo_remote
+      - camera.back_porch
+      - sensor.thermostat_relative_humidity
     domains:
       - automation
       - group
@@ -308,95 +357,25 @@ weather:
 
 # SENSORS
 sensor:
-#HA DOCKERMON
-  #- platform: glances
-    #host: 192.168.1.115
-    #version: 3
-    #resources:
-      #- 'disk_use_percent'
-      #- 'memory_use_percent'
-      #- 'processor_load'
-      #- 'docker_active'
-      #- 'docker_cpu_use'
-      #- 'cpu_temp'
-      #- 'docker_memory_use'
-
-  #- platform: systemmonitor
-    #resources:
-      #- type: disk_use_percent
-        #arg: /media/movies1
-      #- type: disk_use_percent
-        #arg: /media/movies2
-      #- type: disk_use_percent
-        #arg: /media/shows1
-      #- type: disk_use_percent
-        #arg: /media/shows2
-      #- type: disk_use_percent
-        #arg: /
-      #- type: disk_use_percent
-        #arg: /media/workhorse
-      #- type: load_1m
-      #- type: load_5m
-      #- type: load_15m
-      #- type: memory_use_percent
-      
+     
 ##BLUETOOTH  
   - platform: mqtt
     state_topic: 'monitor/pi_front/40:4e:36:5b:0e:d4'
     value_template: '{{ value_json.confidence }}'
     unit_of_measurement: '%'
     name: 'BT_Kevin_Front'
-    #availability_topic: "monitor/pi_front/status"
-    #payload_available: "online"
-    #payload_not_available: "offline"
-    #json_attributes:
-      #- id
-      #- name 
-      #- rssi
-      #- version
-      #- manufacturer
-      #- type
-      #- timestamp
-      #- retained
-      #- confidence 
       
   - platform: mqtt
     state_topic: 'monitor/pi_front/40:4e:36:6f:1f:78'
     value_template: '{{ value_json.confidence }}'
     unit_of_measurement: '%'
     name: 'BT_Ashley_Front'
-    #availability_topic: "monitor/pi_front/status"
-    #payload_available: "online"
-    #payload_not_available: "offline"
-    #json_attributes:
-      #- id
-      #- name 
-      #- rssi
-      #- version
-      #- manufacturer
-      #- type
-      #- timestamp
-      #- retained
-      #- confidence 
       
   - platform: mqtt
     state_topic: 'monitor/pi_rear/40:4e:36:5b:0e:d4'
     value_template: '{{ value_json.confidence }}'
     unit_of_measurement: '%'
     name: 'BT_Kevin_Rear'
-    #availability_topic: "monitor/pi_rear/status"
-    #payload_available: "online"
-    #payload_not_available: "offline"
-    #json_attributes:
-      #- id
-      #- name 
-      #- rssi
-      #- version
-      #- manufacturer
-      #- type
-      #- timestamp
-      #- retained
-      #- confidence 
       
   - platform: mqtt
     state_topic: 'monitor/pi_rear/40:4e:36:6f:1f:78'
@@ -612,6 +591,7 @@ telegram_bot:
 # PRESENCE DETECTION
 device_tracker:
 #https://github.com/andrewjfreyer/monitor
+
   #- platform: googlehome
     ##kiddos
     #host: 192.168.1.131
@@ -728,13 +708,13 @@ switch:
   - platform: circadian_lighting
     name: Kiddo
     lights_ct:
-      - light.kiddos_room
+      - light.kiddos_overhead
     min_brightness: 2
     
   - platform: wake_on_lan
     name: "Kevins Computer"
     mac_address: "00-23-54-82-03-72"
-    host: 192.168.1.122
+    host: 192.168.1.153
     
   #- platform: mqtt
     #name: "Sonoff 08 X"
@@ -845,7 +825,7 @@ light:
       - light.dining_room_2_3
       
   - platform: group
-    name: Kiddo's Room
+    name: Kiddo's Overhead
     entities:
       - light.bedroom_e
       - light.bedroom_n
@@ -957,8 +937,10 @@ binary_sensor:
     sensors:
       showering:
         entity_id: sensor.humidity_158d00023761ee
-        sample_duration: 30
-        min_gradient: 0.0002125
+        min_gradient: 0.00425
+        device_class: occupancy
+        max_samples: 5
+        sample_duration: 1200
         
   - platform: bayesian
     name: Living Room Presence
@@ -1046,19 +1028,19 @@ xiaomi_aqara:
     
     
 # Define input_select
-input_select:
-  log_level:
-    name: Log Level
-    options:
-      - critical
-      - fatal
-      - error
-      - warning
-      - warn
-      - info
-      - debug
-      - notset
-    initial: warn
+#input_select:
+  #log_level:
+    #name: Log Level
+    #options:
+      #- critical
+      #- fatal
+      #- error
+      #- warning
+      #- warn
+      #- info
+      #- debug
+      #- notset
+    #initial: warn
 
 #INPUT BOOLEAN
 input_boolean:
@@ -1080,15 +1062,6 @@ input_boolean:
     initial: off
   vanity_button:
     name: 'Vanity Button'
-    initial: off
-  vanity_switch:
-    name: 'Vanity Switch'
-    initial: off
-  living_room_switch:
-    name: 'Living Room Switch'
-    initial: off
-  rylans_switch:
-    name: 'Rylans Switch'
     initial: off
   asleep:
     name: 'Asleep'
@@ -1116,6 +1089,7 @@ vacuum:
   
 camera:
 #  - platform: zoneminder
+
    - platform: mjpeg
      name: Back Porch
      mjpeg_url: http://192.168.1.159:8081

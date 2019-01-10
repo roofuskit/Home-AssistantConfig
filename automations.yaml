@@ -1,3 +1,42 @@
+#Show time
+  - alias: "Show Time"
+    trigger:
+      - platform: state
+        entity_id: media_player.kodi
+        to: 'playing'
+      - platform: state
+        entity_id: media_player.shield
+        to: 'playing'
+    action:
+      - service: script.turn_on
+        data:
+          entity_id:
+            - script.show_time
+            
+  - alias: "Show's Over"
+    trigger:
+      - platform: state
+        entity_id: media_player.kodi
+        to: 'idle'
+        for: 00:01
+      - platform: state
+        entity_id: media_player.shield
+        to: 'idle'
+        for: 00:01
+      - platform: state
+        entity_id: media_player.kodi
+        to: 'off'
+        for: 00:01
+      - platform: state
+        entity_id: media_player.shield
+        to: 'off'
+        for: 00:01
+    action:
+      - service: script.turn_on
+        data:
+          entity_id:
+            - script.shows_over
+
 #Under cabinet lights
   - alias: "Under Cabinet"
     trigger:
@@ -33,6 +72,7 @@
       - service: notify.kevin_telegram
         data:        
           message: "Bobby has finished"
+
 #Closet lights off
   - alias: Turn off Closet Lights
     trigger:
@@ -77,11 +117,59 @@
       - service: notify.kevin_telegram
         data:        
           title: back porch image
-          message: "back porch snapshot"
+          message: "Motion Snapshot"
           data:
             photo:
               - url: http://192.168.1.159/picture/1/current
-              
+      - service: notify.kevin_telegram
+        data:        
+          title: Alarm Notification
+          message: "Shall I sound the alarm?"
+          data:
+            inline_keyboard:
+            - 'YES:/alarmyes, NO:/alarmno'
+            
+  - id: 'telegramalarmyes'
+    alias: 'Sound Alarm Yes'
+    hide_entity: true
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/alarmyes'
+    action:
+    - service: script.turn_on
+      entity_id:
+        - script.alarm_start
+    - service: telegram_bot.answer_callback_query
+      data_template:
+        callback_query_id: '{{ trigger.event.data.id }}'
+        message: 'OK, sounding the alarm!'
+    - service: telegram_bot.edit_replymarkup
+      data_template:
+        message_id: '{{ trigger.event.data.message.message_id }}'
+        chat_id: '{{ trigger.event.data.user_id }}'
+        inline_keyboard: []
+        
+  - id: 'telegramalarmno'
+    alias: 'Sound Alarm no'
+    hide_entity: true
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/alarmno'
+    action:
+    - service: telegram_bot.answer_callback_query
+      data_template:
+        callback_query_id: '{{ trigger.event.data.id }}'
+        message: 'OK, alarm not sounded.'
+    - service: telegram_bot.edit_replymarkup
+      data_template:
+        message_id: '{{ trigger.event.data.message.message_id }}'
+        chat_id: '{{ trigger.event.data.user_id }}'
+        inline_keyboard: []
+          
   - alias: New Video Alert
     trigger:
       - platform: event
@@ -123,6 +211,8 @@
         event_type: folder_watcher
         event_data:
           event_type: created
+      - platform: webhook
+        webhook_id: !secret motioneye_stopped
     action:
       - service: homeassistant.turn_off
         entity_id: input_boolean.bp_motion
@@ -172,6 +262,7 @@
       - service: homeassistant.turn_off
         entity_id: fan.bathroom_fan
 
+#BATHROOM VOLUME
   - alias: "Bathroom Volume"
     trigger:
       - platform: state
@@ -182,9 +273,9 @@
           entity_id: media_player.bathroom_speaker
           volume_level: >
               {% if is_state('fan.bathroom_fan', 'on') %}
-                0.8
+                0.85
               {% else %}
-                0.45
+                0.50
               {% endif %}
     
 #Kitchen Fan
@@ -247,12 +338,12 @@
           - switch.circadian_lighting_hallway
           - switch.circadian_lighting_household
           - switch.circadian_lighting_kiddo
-          - switch.circadian_lighting_christmas_tree
+          - switch.circadian_lighting_christmas_tree_circadian
       - service: mqtt.publish
         data:
           topic: "cmnd/sonoffs/state"
           payload: "" 
-      
+
 #THERMOSTAT COUNT
   - alias: Thermostat Count
     trigger:
@@ -380,20 +471,9 @@
 #Kitchen Button
   - alias: "Kitchen Button"
     trigger:
-      #- platform: event
-        #event_type: xiaomi_aqara.click
-        #event_data:
-          #entity_id: binary_sensor.switch_158d0001d8dbad
-          #click_type: single
       - platform: mqtt
         topic: home/OpenMQTTGateway/433toMQTT
         payload: '8404930'
-      - platform: event
-        event_type: xiaomi_aqara.click
-        event_data:
-          entity_id: binary_sensor.switch_158d0001d8dbad
-          click_type: double
-          
     action:
       - service: light.toggle
         entity_id: light.kitchen_overhead
@@ -599,57 +679,6 @@
       entity_id: light.yeelight_color2_7c49eb1bd3f4
       data:
         transition: 30
-      
-##Back Porch Alarm
-  #- alias: "BP Alarm on"
-    #trigger:
-      #- platform: state
-        #entity_id: binary_sensor.bp_motion
-        #to: 'on'
-    #condition:
-      #condition: or
-      #conditions:
-        #- condition: state
-          #entity_id: group.all_devices
-          #state: 'not_home'
-        #- condition: state
-          #entity_id: input_boolean.asleep
-          #state: 'on'
-    #action:
-      #- service: media_player.play_media
-        #data:
-          #entity_id: media_player.dining_room_speaker
-          #media_content_id: http://192.168.1.115:8123/local/audio/dog_bark.mp3
-          #media_content_type: 'music'  
-      #- service: media_player.volume_set
-        #data_template:
-          #entity_id: media_player.dining_room_speaker
-          #volume_level: 1.0
-      #- service: light.turn_on
-        #entity_id: light.yeelight_color2_7c49eb1bd3f4
-        #data:
-          #effect: "Police"
-      #- service: light.turn_on
-        #entity_id: light.kitchen_overhead  
-      ##- service: xiaomi_aqara.play_ringtone
-        ##data:
-          ##gw_mac: 7811DCB05F07
-          ##ringtone_id: 8
-          ##ringtone_vol: 100
-
-  #- alias: "BP Alarm Off"
-    #trigger:
-      #- platform: state
-        #entity_id: binary_sensor.bp_motion
-        #to: 'off'
-        #for:
-          #minutes: 01
-    #action:
-      #- service: switch.turn_off
-        #entity_id: switch.back_porch_state
-      #- service: xiaomi_aqara.stop_ringtone
-        #data:
-          #gw_mac: 7811DCB05F07
         
 #Teapot Timer
   - alias: "Teapot Timer"
@@ -762,7 +791,7 @@
          - light.centralite_4257050zhac_02f7ac71_1
          - switch.christmas_lights
       - service: light.turn_on
-        entity_id: light.kiddos_room
+        entity_id: light.kiddos_overhead
         data:
           brightness: 128
           transition: 300
@@ -784,6 +813,16 @@
         from: 'not_home'
         to: 'home'
     action:
+      - service: homeassistant.turn_on
+        data:
+          entity_id:
+            - script.alarm_stop
+            - light.centralite_4257050zhac_02f7ac71_1
+            - switch.christmas_lights
+            - switch.circadian_lighting_hallway
+            - switch.circadian_lighting_household
+            - switch.circadian_lighting_kiddo
+            - switch.circadian_lighting_christmas_tree_circadian 
       - service: climate.set_temperature
         data_template:
           entity_id: climate.thermostat_heating_1
@@ -800,15 +839,7 @@
         data_template:
           entity_id: input_number.stored_cooling_target 
           value: '{{ states.input_number.present_cooling_target.state | int }}'
-      - service: homeassistant.turn_on
-        data:
-          entity_id:
-            - light.centralite_4257050zhac_02f7ac71_1
-            - switch.christmas_lights
-            - switch.circadian_lighting_hallway
-            - switch.circadian_lighting_household
-            - switch.circadian_lighting_kiddo
-            - switch.circadian_lighting_christmas_tree
+            
 
 ## AWAY  
   - alias: "Away"
@@ -819,18 +850,19 @@
         to: 'not_home'
         for: 00:30
     action:
-      - service: light.turn_off
-        data:
-          entity_id: group.all_lights
       - service: homeassistant.turn_off
         data:
-          entity_id: fan.master_bedroom_fan, fan.kitchen_fan, fan.living_room_fan, fan.spare_room_fan
-      - service: switch.turn_off
-        data:
-          entity_id: group.all_switches
-      - service: climate.turn_off
-        data:
-          entity_id: climate.bedroom_cool, climate.kiddos_room_cool, climate.kitchen_cool, climate.livingroom_cool
+          entity_id:
+            - fan.master_bedroom_fan
+            - fan.kitchen_fan
+            - fan.living_room_fan
+            - fan.spare_room_fan
+            - group.all_lights
+            - group.all_switches
+            - climate.bedroom_cool
+            - climate.kiddos_room_cool
+            - climate.kitchen_cool
+            - climate.livingroom_cool
       - service: climate.set_temperature
         data_template:
           entity_id: climate.thermostat_heating_1
@@ -1090,11 +1122,15 @@
         event_data:
           entity_id: binary_sensor.switch_158d00022389fd
           click_type: single
+      - platform: mqtt
+        topic: home/OpenMQTTGateway/433toMQTT
+        payload: '5714'
     action:
       - service: light.toggle
         data:
           entity_id: light.bathroom_lights
           transition: 2
+      - delay: 00:00:01
         
 ##Vanity Button
   #- alias: "Vanity Button"
@@ -1228,11 +1264,27 @@
         event_data:
           entity_id: binary_sensor.switch_158d0001be66dc
           click_type: single
+      - platform: mqtt
+        topic: home/OpenMQTTGateway/433toMQTT
+        payload: '7762'
     action:
       - service: light.toggle
         data:
           entity_id: light.living_room_overhead
           transition: 2
+      - delay: 00:00:01
+          
+#Dining Room Button
+  - alias: "Dining Room Button"
+    trigger:
+      - platform: mqtt
+        topic: home/OpenMQTTGateway/433toMQTT
+        payload: "8474818"
+    action:
+      - service: light.toggle
+        data:
+          entity_id: light.dining_room_overhead
+      - delay: 00:00:01
 
 ##Living Room Double Dim
   #- alias: "Living Room 2%"
